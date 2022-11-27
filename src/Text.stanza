@@ -1,0 +1,83 @@
+defpackage cairo/Text :
+  import core
+
+extern cairo_select_font_face : (ptr<?>,ptr<byte>,int,int) -> int  ;  void
+extern cairo_set_font_size : (ptr<?>,double) -> int  ;  void
+extern cairo_set_font_matrix : (ptr<?>,ptr<?>) -> int  ;  void
+extern cairo_get_font_matrix : (ptr<?>,ptr<?>) -> int  ;  void
+extern cairo_set_font_options : (ptr<?>,ptr<?>) -> int  ;  void
+extern cairo_get_font_options : (ptr<?>,ptr<?>) -> int  ;  void
+extern cairo_set_font_face : (ptr<?>,ptr<?>) -> int  ;  void
+extern cairo_get_font_face : (ptr<?>) -> ptr<?>
+extern cairo_set_scaled_font : (ptr<?>,ptr<?>) -> int  ;  void
+extern cairo_get_scaled_font : (ptr<?>) -> ptr<?>
+extern cairo_show_text : (ptr<?>,ptr<byte>) -> int  ;  void
+extern cairo_show_glyphs : (ptr<?>,ptr<?>,int) -> int  ;  void
+extern cairo_show_text_glyphs : (ptr<?>,ptr<byte>,int,ptr<?>,int,ptr<?>,int,int) -> int  ;  void
+extern cairo_text_path : (ptr<?>,ptr<byte>) -> int  ;  void
+extern cairo_glyph_path : (ptr<?>,ptr<?>,int) -> int  ;  void
+extern cairo_text_extents : (ptr<?>,ptr<byte>,ptr<?>) -> int  ;  void
+extern cairo_glyph_extents : (ptr<?>,ptr<?>,int,ptr<?>) -> int  ;  void
+extern cairo_font_extents : (ptr<?>,ptr<?>) -> int  ;  void
+extern cairo_font_face_reference : (ptr<?>) -> ptr<?>
+extern cairo_font_face_destroy : (ptr<?>) -> int  ;  void
+extern cairo_font_face_get_reference_count : (ptr<?>) -> int
+extern cairo_font_face_status : (ptr<?>) -> int
+extern cairo_font_face_get_type : (ptr<?>) -> int
+extern cairo_font_face_get_user_data : (ptr<?>,ptr<?>) -> ptr<?>
+extern cairo_font_face_set_user_data : (ptr<?>,ptr<?>,ptr<?>,int) -> int
+extern cairo_scaled_font_create : (ptr<?>,ptr<?>,ptr<?>,ptr<?>) -> ptr<?>
+extern cairo_scaled_font_reference : (ptr<?>) -> ptr<?>
+extern cairo_scaled_font_destroy : (ptr<?>) -> int  ;  void
+extern cairo_scaled_font_get_reference_count : (ptr<?>) -> int
+extern cairo_scaled_font_status : (ptr<?>) -> int
+extern cairo_scaled_font_get_type : (ptr<?>) -> int
+extern cairo_scaled_font_get_user_data : (ptr<?>,ptr<?>) -> ptr<?>
+extern cairo_scaled_font_set_user_data : (ptr<?>,ptr<?>,ptr<?>,int) -> int
+extern cairo_scaled_font_extents : (ptr<?>,ptr<?>) -> int  ;  void
+extern cairo_scaled_font_text_extents : (ptr<?>,ptr<byte>,ptr<?>) -> int  ;  void
+extern cairo_scaled_font_glyph_extents : (ptr<?>,ptr<?>,int,ptr<?>) -> int  ;  void
+extern cairo_scaled_font_text_to_glyphs : (ptr<?>,double,double,ptr<byte>,int,ptr<ptr<?>>,ptr<int>,ptr<ptr<?>>,ptr<int>,ptr<?>) -> int
+extern cairo_scaled_font_get_font_face : (ptr<?>) -> ptr<?>
+extern cairo_scaled_font_get_font_matrix : (ptr<?>,ptr<?>) -> int  ;  void
+extern cairo_scaled_font_get_ctm : (ptr<?>,ptr<?>) -> int  ;  void
+extern cairo_scaled_font_get_scale_matrix : (ptr<?>,ptr<?>) -> int  ;  void
+extern cairo_scaled_font_get_font_options : (ptr<?>,ptr<?>) -> int  ;  void
+extern cairo_toy_font_face_create : (ptr<byte>,int,int) -> ptr<?>
+extern cairo_toy_font_face_get_family : (ptr<?>) -> ptr<byte>
+extern cairo_toy_font_face_get_slant : (ptr<?>) -> int
+extern cairo_toy_font_face_get_weight : (ptr<?>) -> int
+extern cairo_user_font_face_create : () -> ptr<?>
+extern cairo_user_scaled_font_init_func_t : (ptr<?>,ptr<?>,ptr<?>) -> int
+extern cairo_user_scaled_font_render_glyph_func_t : (ptr<?>,long,ptr<?>,ptr<?>) -> int
+extern cairo_user_scaled_font_text_to_glyphs_func_t : (ptr<?>,ptr<byte>,int,ptr<ptr<?>>,ptr<int>,ptr<ptr<?>>,ptr<int>,ptr<?>) -> int
+extern cairo_user_scaled_font_unicode_to_glyph_func_t : (ptr<?>,long,ptr<long>) -> int
+extern cairo_user_font_face_set_init_func : (ptr<?>,int) -> int  ;  void
+extern cairo_user_font_face_set_render_glyph_func : (ptr<?>,int) -> int  ;  void
+extern cairo_user_font_face_set_text_to_glyphs_func : (ptr<?>,int) -> int  ;  void
+extern cairo_user_font_face_set_unicode_to_glyph_func : (ptr<?>,int) -> int  ;  void
+extern cairo_user_font_face_get_init_func : (ptr<?>) -> int
+extern cairo_user_font_face_get_render_glyph_func : (ptr<?>) -> int
+extern cairo_user_font_face_get_text_to_glyphs_func : (ptr<?>) -> int
+extern cairo_user_font_face_get_unicode_to_glyph_func : (ptr<?>) -> int
+
+extern cairo_glyph_allocate : (int) -> ptr<?>
+extern cairo_glyph_free : (ptr<?>) -> int  ;  void
+extern cairo_text_cluster_allocate : (int) -> ptr<?>
+extern cairo_text_cluster_free : (ptr<?>) -> int  ;  void
+
+extern cairo_font_options_create : () -> ptr<?>
+extern cairo_font_options_copy : (ptr<?>) -> ptr<?>
+extern cairo_font_options_destroy : (ptr<?>) -> int  ;  void
+extern cairo_font_options_status : (ptr<?>) -> int
+extern cairo_font_options_merge : (ptr<?>,ptr<?>) -> int  ;  void
+extern cairo_font_options_equal : (ptr<?>,ptr<?>) -> int
+extern cairo_font_options_hash : (ptr<?>) -> long
+extern cairo_font_options_set_antialias : (ptr<?>,int) -> int  ;  void
+extern cairo_font_options_get_antialias : (ptr<?>) -> int
+extern cairo_font_options_set_subpixel_order : (ptr<?>,int) -> int  ;  void
+extern cairo_font_options_get_subpixel_order : (ptr<?>) -> int
+extern cairo_font_options_set_hint_style : (ptr<?>,int) -> int  ;  void
+extern cairo_font_options_get_hint_style : (ptr<?>) -> int
+extern cairo_font_options_set_hint_metrics : (ptr<?>,int) -> int  ;  void
+extern cairo_font_options_get_hint_metrics : (ptr<?>) -> int

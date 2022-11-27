@@ -1,0 +1,220 @@
+defpackage cairo/Surface :
+  import core
+  import cairo/Device
+  import cairo/Geometry
+
+extern cairo_surface_create_similar : (ptr<?>,int,int,int) -> ptr<?>
+extern cairo_surface_create_similar_image : (ptr<?>,int,int,int) -> ptr<?>
+extern cairo_surface_map_to_image : (ptr<?>,ptr<?>) -> ptr<?>
+extern cairo_surface_unmap_image : (ptr<?>,ptr<?>) -> int  ;  void
+extern cairo_surface_create_for_rectangle : (ptr<?>,double,double,double,double) -> ptr<?>
+extern cairo_surface_create_observer : (ptr<?>,int) -> ptr<?>
+extern cairo_surface_observer_add_paint_callback : (ptr<?>,int,ptr<?>) -> int
+extern cairo_surface_observer_add_mask_callback : (ptr<?>,int,ptr<?>) -> int
+extern cairo_surface_observer_add_fill_callback : (ptr<?>,int,ptr<?>) -> int
+extern cairo_surface_observer_add_stroke_callback : (ptr<?>,int,ptr<?>) -> int
+extern cairo_surface_observer_add_glyphs_callback : (ptr<?>,int,ptr<?>) -> int
+extern cairo_surface_observer_add_flush_callback : (ptr<?>,int,ptr<?>) -> int
+extern cairo_surface_observer_add_finish_callback : (ptr<?>,int,ptr<?>) -> int
+extern cairo_surface_observer_print : (ptr<?>,int,ptr<?>) -> int
+extern cairo_surface_observer_elapsed : (ptr<?>) -> double
+extern cairo_surface_reference : (ptr<?>) -> ptr<?>
+extern cairo_surface_finish : (ptr<?>) -> int  ;  void
+extern cairo_surface_destroy : (ptr<?>) -> int  ;  void
+extern cairo_surface_get_device : (ptr<?>) -> ptr<?>
+extern cairo_surface_get_reference_count : (ptr<?>) -> int
+extern cairo_surface_status : (ptr<?>) -> int
+extern cairo_surface_get_type : (ptr<?>) -> int
+extern cairo_surface_get_content : (ptr<?>) -> int
+extern cairo_surface_get_user_data : (ptr<?>,ptr<?>) -> ptr<?>
+extern cairo_surface_set_user_data : (ptr<?>,ptr<?>,ptr<?>,int) -> int
+extern cairo_surface_get_mime_data : (ptr<?>,ptr<byte>,ptr<ptr<byte>>,ptr<long>) -> int  ;  void
+extern cairo_surface_set_mime_data : (ptr<?>,ptr<byte>,ptr<byte>,long,int,ptr<?>) -> int
+extern cairo_surface_supports_mime_type : (ptr<?>,ptr<byte>) -> int
+extern cairo_surface_get_font_options : (ptr<?>,ptr<?>) -> int  ;  void
+extern cairo_surface_flush : (ptr<?>) -> int  ;  void
+extern cairo_surface_mark_dirty : (ptr<?>) -> int  ;  void
+extern cairo_surface_mark_dirty_rectangle : (ptr<?>,int,int,int,int) -> int  ;  void
+extern cairo_surface_set_device_scale : (ptr<?>,double,double) -> int  ;  void
+extern cairo_surface_get_device_scale : (ptr<?>,ptr<double>,ptr<double>) -> int  ;  void
+extern cairo_surface_set_device_offset : (ptr<?>,double,double) -> int  ;  void
+extern cairo_surface_get_device_offset : (ptr<?>,ptr<double>,ptr<double>) -> int  ;  void
+extern cairo_surface_set_fallback_resolution : (ptr<?>,double,double) -> int  ;  void
+extern cairo_surface_get_fallback_resolution : (ptr<?>,ptr<double>,ptr<double>) -> int  ;  void
+extern cairo_surface_copy_page : (ptr<?>) -> int  ;  void
+extern cairo_surface_show_page : (ptr<?>) -> int  ;  void
+extern cairo_surface_has_show_text_glyphs : (ptr<?>) -> int
+
+
+; content type
+public val CAIRO_CONTENT_COLOR:Int = 0x1000
+public val CAIRO_CONTENT_ALPHA:Int = 0x2000
+public val CAIRO_CONTENT_COLOR_ALPHA:Int = 0x3000
+
+; cairo_surface_t
+
+public val CAIRO_SURFACE_TYPE_IMAGE:Int = 0
+public val CAIRO_SURFACE_TYPE_PDF:Int = 1
+public val CAIRO_SURFACE_TYPE_PS:Int = 2
+public val CAIRO_SURFACE_TYPE_XLIB:Int = 3
+public val CAIRO_SURFACE_TYPE_XCB:Int = 4
+public val CAIRO_SURFACE_TYPE_GLITZ:Int = 5
+public val CAIRO_SURFACE_TYPE_QUARTZ:Int = 6
+public val CAIRO_SURFACE_TYPE_WIN32:Int = 7
+public val CAIRO_SURFACE_TYPE_BEOS:Int = 8
+public val CAIRO_SURFACE_TYPE_DIRECTFB:Int = 9
+public val CAIRO_SURFACE_TYPE_SVG:Int = 10
+public val CAIRO_SURFACE_TYPE_OS2:Int = 11
+public val CAIRO_SURFACE_TYPE_WIN32_PRINTING:Int = 12
+public val CAIRO_SURFACE_TYPE_QUARTZ_IMAGE:Int = 13
+public val CAIRO_SURFACE_TYPE_SCRIPT:Int = 14
+public val CAIRO_SURFACE_TYPE_QT:Int = 15
+public val CAIRO_SURFACE_TYPE_RECORDING:Int = 16
+public val CAIRO_SURFACE_TYPE_VG:Int = 17
+public val CAIRO_SURFACE_TYPE_GL:Int = 18
+public val CAIRO_SURFACE_TYPE_DRM:Int = 19
+public val CAIRO_SURFACE_TYPE_TEE:Int = 20
+public val CAIRO_SURFACE_TYPE_XML:Int = 21
+public val CAIRO_SURFACE_TYPE_SKIA:Int = 22
+public val CAIRO_SURFACE_TYPE_SUBSURFACE:Int = 23
+public val CAIRO_SURFACE_TYPE_COGL:Int = 24
+
+public lostanza deftype SurfaceFinalizer <: Finalizer :
+  value:ptr<?>
+
+lostanza defmethod run (self:ref<SurfaceFinalizer>) -> ref<False> :
+  call-c cairo_surface_destroy(self.value)
+  return false
+
+public lostanza deftype Surface <: Unique :
+  value : ptr<?>
+
+public lostanza defn Surface (p:ptr<?>) -> ref<Surface> :
+  ; Note that this should only be used internally for
+  ;   making sure that reference counting is handled properly.
+  val ret = new Surface{p}
+  add-finalizer(new SurfaceFinalizer{p}, ret)
+  return ret
+
+public lostanza defn Surface (other:ref<Surface>, contentType:ref<Int>, width:ref<Int>, height:ref<Int>) -> ref<Surface> :
+  ; Copy Constructor for Surfaces.
+  val ret = call-c cairo_surface_create_similar(other.value, contentType.value, width.value, height.value)
+  return Surface(ret)
+
+public lostanza defn Surface (target:ref<Surface>, x:ref<Double>, y:ref<Double>, width:ref<Double>, height:ref<Double>) -> ref<Surface> :
+  val ret = call-c cairo_surface_create_for_rectangle(target.value, x.value, y.value, width.value, height.value)
+  return Surface(ret)
+
+public lostanza defn get-ref (self:ref<Surface>) -> ref<Surface> :
+  val ret = call-c cairo_surface_reference(self.value)
+  return Surface(ret)
+
+public lostanza defn get-surface-ref (p:ptr<?>) -> ref<Surface> :
+  val ret = call-c cairo_surface_reference(p)
+  return Surface(ret)
+
+public lostanza defn get-ref-count (self:ref<Surface>) -> ref<Int> :
+  val ret = call-c cairo_surface_get_reference_count(self.value)
+  return new Int{ret}
+
+public lostanza defn get-status (self:ref<Surface>) -> ref<Int> :
+  val ret = call-c cairo_surface_status(self.value)
+  return new Int{ret}
+
+public lostanza defn finish (self:ref<Surface>) -> ref<False> :
+  call-c cairo_surface_finish(self.value)
+  return false
+
+public lostanza defn flush (self:ref<Surface>) -> ref<False> :
+  call-c cairo_surface_finish(self.value)
+  return false
+
+; @TODO - Do I need to increment the Device reference here ?
+; public lostanza defn get-device (self:ref<Surface>) -> ref<Device> :
+;   val ret = call-c cairo_surface_get_device(self.value)
+;   return Device(ret)
+
+; public lostanza defn get-font-options (self:ref<Surface>) -> ref<FontOptions> :
+;   val ret = call-c cairo_surface_get_font_options(self.value)
+;   return FontOptions(ret)
+
+public lostanza defn get-content (self:ref<Surface>) -> ref<Int> :
+  val ret = call-c cairo_surface_get_content(self.value)
+  return new Int{ret}
+
+public lostanza defn mark-dirty (self:ref<Surface>) -> ref<False> :
+  call-c cairo_surface_mark_dirty(self.value)
+  return false
+
+public lostanza defn mark-dirty (self:ref<Surface>, x:ref<Int>, y:ref<Int>, width:ref<Int>, height:ref<Int>) -> ref<False> :
+  call-c cairo_surface_mark_dirty_rectangle(self.value, x.value, y.value, width.value, height.value)
+  return false
+
+public lostanza defn set-device-offset (self:ref<Surface>, x:ref<Double>, y:ref<Double>) -> ref<False> :
+  call-c cairo_surface_set_device_offset(self.value, x.value, y.value)
+  return false
+
+public lostanza defn set-device-offset (self:ref<Surface>, p:ref<Point2D>) -> ref<False> :
+  call-c cairo_surface_set_device_offset(self.value, p.x, p.y)
+  return false
+
+; public lostanza defn get-device-offset (self:ref<Surface>) -> ref<False> :
+;   ; @TODO - I need to return a Point like object or something ?
+;   call-c cairo_surface_get_device_offset(self.value)
+;   return false
+
+public lostanza defn set-device-scale (self:ref<Surface>, x:ref<Double>, y:ref<Double>) -> ref<False> :
+  call-c cairo_surface_set_device_scale(self.value, x.value, y.value)
+  return false
+
+; public lostanza defn get-device-scale (self:ref<Surface>) -> ref<False> :
+;   call-c cairo_surface_get_device_scale(self.value)
+;   return false
+
+public lostanza defn set-fallback-resolution (self:ref<Surface>, x:ref<Double>, y:ref<Double>) -> ref<False> :
+  call-c cairo_surface_set_fallback_resolution(self.value, x.value, y.value)
+  return false
+
+; public lostanza defn get-fallback-resolution (self:ref<Surface>) -> ref<False> :
+;   call-c cairo_surface_get_fallback_resolution(self.value)
+;   return false
+
+public lostanza defn get-type (self:ref<Surface>) -> ref<Int> :
+  val ret = call-c cairo_surface_get_type(self.value)
+  return new Int{ret}
+
+; User Data Not Impleted yet
+
+public lostanza defn copy-page (self:ref<Surface>) -> ref<False> :
+  call-c cairo_surface_copy_page(self.value)
+  return false
+
+public lostanza defn show-page (self:ref<Surface>) -> ref<False> :
+  call-c cairo_surface_show_page(self.value)
+  return false
+
+public lostanza defn has-show-text-glyphs (self:ref<Surface>) -> ref<True|False> :
+  val ret = call-c cairo_surface_has_show_text_glyphs(self.value)
+  if ret > 0 :
+    return true
+  else:
+    return false
+
+; @TODO set_mime_data / get_mime_data / supports_mime_type
+
+; public lostanza defn map-to-image (self:ref<Surface>, extents:ref<Rectangle>) -> ref<Surface> :
+;   val ret = call-c cairo_surface_map_to_image(self.value, addr(value))
+;   return Surface(ret)
+
+public lostanza defn unmap-image (self:ref<Surface>, img:ref<Surface>) -> ref<False> :
+  val ret = call-c cairo_surface_unmap_image(self.value, img.value)
+  return false
+
+
+
+
+
+
+
+
+

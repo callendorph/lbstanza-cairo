@@ -1,0 +1,14 @@
+defpackage cairo/VersionInfo :
+  import core
+
+extern cairo_version : () -> int
+extern cairo_version_string : () -> ptr<byte>
+
+public lostanza defn cairo-version () -> ref<Int> :
+  val ret = call-c cairo_version()
+  return new Int{ret}
+
+public lostanza defn cairo-version () -> ref<String> :
+  val ret = call-c cairo_version_string()
+  return String(ret)
+

@@ -1,0 +1,14 @@
+defpackage cairo/RasterSrc :
+  import core
+
+extern cairo_pattern_create_raster_source : (ptr<?>,int,int,int) -> ptr<?>
+extern cairo_raster_source_pattern_set_callback_data : (ptr<?>,ptr<?>) -> int  ;  void
+extern cairo_raster_source_pattern_get_callback_data : (ptr<?>) -> ptr<?>
+extern cairo_raster_source_pattern_set_acquire : (ptr<?>,int,int) -> int  ;  void
+extern cairo_raster_source_pattern_get_acquire : (ptr<?>,ptr<?>,ptr<?>) -> int  ;  void
+extern cairo_raster_source_pattern_set_snapshot : (ptr<?>,int) -> int  ;  void
+extern cairo_raster_source_pattern_get_snapshot : (ptr<?>) -> int
+extern cairo_raster_source_pattern_set_copy : (ptr<?>,int) -> int  ;  void
+extern cairo_raster_source_pattern_get_copy : (ptr<?>) -> int
+extern cairo_raster_source_pattern_set_finish : (ptr<?>,int) -> int  ;  void
+extern cairo_raster_source_pattern_get_finish : (ptr<?>) -> int

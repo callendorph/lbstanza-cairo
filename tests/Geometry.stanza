@@ -1,0 +1,31 @@
+#use-added-syntax(tests)
+defpackage cairo/tests/Geometry :
+  import core
+  import cairo/Geometry
+
+deftest(geometry) cairo-geometry-basic :
+  val a = Point2D(2.0, 3.0)
+
+  #EXPECT(get-x(a) == 2.0)
+  #EXPECT(get-y(a) == 3.0)
+
+  val c = RectangleInt(1,2,3,4)
+  #EXPECT(get-x(c) == 1)
+  #EXPECT(get-y(c) == 2)
+  #EXPECT(get-width(c) == 3)
+  #EXPECT(get-height(c) == 4)
+
+  val d = Rectangle(10.0,20.0,30.0,40.0)
+  #EXPECT(get-x(d) == 10.0)
+  #EXPECT(get-y(d) == 20.0)
+  #EXPECT(get-width(d) == 30.0)
+  #EXPECT(get-height(d) == 40.0)
+
+  val v = Circle(1.0, 2.0, 5.0)
+  #EXPECT(get-x(v) == 1.0)
+  #EXPECT(get-y(v) == 2.0)
+  #EXPECT(get-radius(v) == 5.0)
+  val p = get-center(v)
+  #EXPECT(get-x(p) == 1.0)
+  #EXPECT(get-y(p) == 2.0)
+

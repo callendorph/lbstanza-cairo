@@ -1,0 +1,66 @@
+defpackage cairo/Colors :
+  import core
+
+public lostanza deftype RGB:
+  r : double
+  g : double
+  b : double
+
+public lostanza defn RGB () -> ref<RGB> :
+  return new RGB{0.0, 0.0, 0.0}
+
+public lostanza defn RGB (r:ref<Double>, g:ref<Double>, b:ref<Double>) -> ref<RGB> :
+  return new RGB{r.value, g.value, b.value}
+
+public lostanza defn red (self:ref<RGB>) -> ref<Double> :
+  return new Double{self.r}
+
+public lostanza defn green (self:ref<RGB>) -> ref<Double> :
+  return new Double{self.g}
+
+public lostanza defn blue (self:ref<RGB>) -> ref<Double> :
+  return new Double{self.b}
+
+public lostanza defn to-rgba (self:ref<RGB>, alpha:ref<Double>) -> ref<ARGB> :
+  return new ARGB{alpha.value, self.r, self.g, self.b}
+
+defmethod print (o:OutputStream, c:RGB) :
+  val r = red(c)
+  val g = green(c)
+  val b = blue(c)
+  print(o, "RGB(%_, %_, %_)" % [r, g, b])
+
+public lostanza deftype ARGB:
+  a : double
+  r : double
+  g : double
+  b : double
+
+public lostanza defn ARGB () -> ref<ARGB> :
+  return new ARGB{0.0, 0.0, 0.0, 0.0}
+
+public lostanza defn ARGB (a:ref<Double>, r:ref<Double>, g:ref<Double>, b:ref<Double>) -> ref<ARGB> :
+  return new ARGB{a.value, r.value, g.value, b.value}
+
+public lostanza defn alpha (self:ref<ARGB>) -> ref<Double> :
+  return new Double{self.a}
+
+public lostanza defn red (self:ref<ARGB>) -> ref<Double> :
+  return new Double{self.r}
+
+public lostanza defn green (self:ref<ARGB>) -> ref<Double> :
+  return new Double{self.g}
+
+public lostanza defn blue (self:ref<ARGB>) -> ref<Double> :
+  return new Double{self.b}
+
+public lostanza defn to-rgb (self:ref<ARGB>) -> ref<RGB> :
+  return new RGB{self.r, self.g, self.b}
+
+defmethod print (o:OutputStream, c:ARGB) :
+  val a = alpha(c)
+  val r = red(c)
+  val g = green(c)
+  val b = blue(c)
+  print(o, "ARGB(%_, %_, %_, %_)" % [a, r, g, b])
+

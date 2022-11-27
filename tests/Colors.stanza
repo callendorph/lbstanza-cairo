@@ -1,0 +1,31 @@
+#use-added-syntax(tests)
+defpackage cairo/tests/Colors :
+  import core
+  import cairo/Colors
+
+deftest(colors) cairo-colors-basic :
+
+  var uut = RGB()
+  #EXPECT(red(uut) == 0.0)
+  #EXPECT(green(uut) == 0.0)
+  #EXPECT(blue(uut) == 0.0)
+
+  var other = to-rgba(uut, 1.0)
+
+  #EXPECT(red(other) == 0.0)
+  #EXPECT(green(other) == 0.0)
+  #EXPECT(blue(other) == 0.0)
+  #EXPECT(alpha(other) == 1.0)
+
+  uut = RGB(0.1, 0.2, 0.3)
+
+  #EXPECT(red(uut) == 0.1)
+  #EXPECT(green(uut) == 0.2)
+  #EXPECT(blue(uut) == 0.3)
+
+  other = to-rgba(uut, 0.5)
+
+  #EXPECT(red(other) == 0.1)
+  #EXPECT(green(other) == 0.2)
+  #EXPECT(blue(other) == 0.3)
+  #EXPECT(alpha(other) == 0.5)

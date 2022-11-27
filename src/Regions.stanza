@@ -1,0 +1,145 @@
+defpackage cairo/Regions :
+  import core
+  import cairo/Geometry
+  import cairo/Errors
+
+extern cairo_region_create : () -> ptr<?>
+extern cairo_region_create_rectangle : (ptr<?>) -> ptr<?>
+extern cairo_region_create_rectangles : (ptr<?>,int) -> ptr<?>
+extern cairo_region_copy : (ptr<?>) -> ptr<?>
+extern cairo_region_reference : (ptr<?>) -> ptr<?>
+extern cairo_region_destroy : (ptr<?>) -> int  ;  void
+extern cairo_region_equal : (ptr<?>,ptr<?>) -> int
+extern cairo_region_status : (ptr<?>) -> int
+extern cairo_region_get_extents : (ptr<?>,ptr<?>) -> int  ;  void
+extern cairo_region_num_rectangles : (ptr<?>) -> int
+extern cairo_region_get_rectangle : (ptr<?>,int,ptr<?>) -> int  ;  void
+extern cairo_region_is_empty : (ptr<?>) -> int
+extern cairo_region_contains_rectangle : (ptr<?>,ptr<?>) -> int
+extern cairo_region_contains_point : (ptr<?>,int,int) -> int
+extern cairo_region_translate : (ptr<?>,int,int) -> int  ;  void
+extern cairo_region_subtract : (ptr<?>,ptr<?>) -> int
+extern cairo_region_subtract_rectangle : (ptr<?>,ptr<?>) -> int
+extern cairo_region_intersect : (ptr<?>,ptr<?>) -> int
+extern cairo_region_intersect_rectangle : (ptr<?>,ptr<?>) -> int
+extern cairo_region_union : (ptr<?>,ptr<?>) -> int
+extern cairo_region_union_rectangle : (ptr<?>,ptr<?>) -> int
+extern cairo_region_xor : (ptr<?>,ptr<?>) -> int
+extern cairo_region_xor_rectangle : (ptr<?>,ptr<?>) -> int
+
+public val CAIRO_REGION_OVERLAP_IN:Int = 0
+public val CAIRO_REGION_OVERLAP_OUT:Int = 1
+public val CAIRO_REGION_OVERLAP_PART:Int = 2
+
+lostanza deftype RegionFinalizer <: Finalizer :
+  value:ptr<?>
+
+lostanza defmethod run (self:ref<RegionFinalizer>) -> ref<False> :
+  call-c cairo_region_destroy(self.value)
+  return false
+
+public lostanza deftype Region <: Unique :
+  value : ptr<?>
+
+public lostanza defn Region (p:ptr<?>) -> ref<Region> :
+  ; Note that this should only be used internally for
+  ;   making sure that reference counting is handled properly.
+  val ret = new Region{p}
+  add-finalizer(new RegionFinalizer{p}, ret)
+  return ret
+
+public lostanza defn Region () -> ref<Region> :
+  val ret = call-c cairo_region_create()
+  return Region(ret)
+
+public lostanza defn Region (other:ref<Region>) -> ref<Region> :
+  val ret = call-c cairo_region_copy(other.value)
+  return Region(ret)
+
+public lostanza defn Region (r:ref<RectangleInt>) -> ref<Region> :
+  val ret = call-c cairo_region_create_rectangle(addr!(r.x))
+  return Region(ret)
+
+; public lostanza defn Region (rect:ref<Array<Rectangle<Int>>>) -> ref<Region> :
+;   val ret = call-c cairo_region_create_rectangles()
+;   return Region(ret)
+
+public lostanza defn get-ref (self:ref<Region>) -> ref<Region> :
+  val ret = call-c cairo_region_reference(self.value)
+  return Region(ret)
+
+public lostanza defn get-region-ref (p:ptr<?>) -> ref<Region> :
+  val ret = call-c cairo_region_reference(p)
+  return Region(ret)
+
+public lostanza defn get-status (self:ref<Region>) -> ref<Int> :
+  val ret = call-c cairo_region_status(self.value)
+  return new Int{ret}
+
+public defn check-status (self:Region) :
+  check-status(get-status(self))
+
+; public lostanza defn get-extents (self:ref<Region>) -> ref<Array<Rectangle<Int>>> :
+;   val ret = call-c cairo_region_get_extents(self.value)
+;   return new Int{ret}
+
+public lostanza defn get-num-rectangles (self:ref<Region>) -> ref<Int> :
+  val ret = call-c cairo_region_num_rectangles(self.value)
+  return new Int{ret}
+
+public lostanza defn get-rectangle (self:ref<Region>, nth:ref<Int>) -> ref<RectangleInt> :
+  val r = new RectangleInt{0,0,0,0}
+  call-c cairo_region_get_rectangle(self.value, nth.value, addr!(r.x))
+  return r
+
+public lostanza defn empty? (self:ref<Region>) -> ref<Int> :
+  val ret = call-c cairo_region_is_empty(self.value)
+  return new Int{ret}
+
+public lostanza defn contains (self:ref<Region>, x:ref<Int>, y:ref<Int>) -> ref<Int> :
+  val ret = call-c cairo_region_contains_point(self.value, x.value, y.value)
+  return new Int{ret}
+
+public lostanza defn contains (self:ref<Region>, r:ref<RectangleInt>) -> ref<Int> :
+  val ret = call-c cairo_region_contains_rectangle(self.value, addr!(r.x))
+  return new Int{ret}
+
+public lostanza defn equals? (a:ref<Region>, b:ref<Region>) -> ref<Int> :
+  val ret = call-c cairo_region_equal(a.value, b.value)
+  return new Int{ret}
+
+public lostanza defn translate (self:ref<Region>, dx:ref<Int>, dy:ref<Int>) -> ref<Int> :
+  val ret = call-c cairo_region_translate(self.value, dx.value, dy.value)
+  return new Int{ret}
+
+public lostanza defn intersect! (self:ref<Region>, other:ref<Region>) -> ref<Int> :
+  val ret = call-c cairo_region_intersect(self.value, other.value)
+  return new Int{ret}
+
+public lostanza defn intersect! (self:ref<Region>, r:ref<RectangleInt>) -> ref<Int> :
+  val ret = call-c cairo_region_intersect_rectangle(self.value, addr!(r.x))
+  return new Int{ret}
+
+public lostanza defn subtract! (self:ref<Region>, other:ref<Region>) -> ref<Int> :
+  val ret = call-c cairo_region_subtract(self.value, other.value)
+  return new Int{ret}
+
+public lostanza defn subtract! (self:ref<Region>, r:ref<RectangleInt>) -> ref<Int> :
+  val ret = call-c cairo_region_subtract_rectangle(self.value, addr!(r.x))
+  return new Int{ret}
+
+public lostanza defn union! (self:ref<Region>, other:ref<Region>) -> ref<Int> :
+  val ret = call-c cairo_region_union(self.value, other.value)
+  return new Int{ret}
+
+public lostanza defn union! (self:ref<Region>, r:ref<RectangleInt>) -> ref<Int> :
+  val ret = call-c cairo_region_union_rectangle(self.value, addr!(r.x))
+  return new Int{ret}
+
+public lostanza defn xor! (self:ref<Region>, other:ref<Region>) -> ref<Int> :
+  val ret = call-c cairo_region_xor(self.value, other.value)
+  return new Int{ret}
+
+public lostanza defn union! (self:ref<Region>, r:ref<RectangleInt>) -> ref<Int> :
+  val ret = call-c cairo_region_xor_rectangle(self.value, addr!(r.x))
+  return new Int{ret}
