@@ -1,0 +1,124 @@
+#use-added-syntax(tests)
+defpackage cairo/tests/Context :
+  import core
+  import cairo/Context
+  import cairo/ImageSurface
+  import cairo/Paths
+  import cairo/Patterns
+  import cairo/Errors
+  import cairo/Geometry
+  import cairo/PNG
+  import cairo/Colors
+
+deftest(context) cairo-context-basic :
+
+  val img = ImageSurface(CAIRO_FORMAT_RGB24, 100, 50)
+  val sf = to-surface(img)
+  val ctx = Context(sf)
+  val stat = get-status(ctx)
+  #EXPECT(stat == CAIRO_STATUS_SUCCESS)
+
+  var cnt = get-ref-count(ctx)
+  #EXPECT(cnt == 1)
+
+  val ctxCopy = get-ref(ctx)
+
+  cnt = get-ref-count(ctx)
+  #EXPECT(cnt == 2)
+
+  ; Attempt to draw a simple image.
+  set-source(ctx, 0.5, 0.5, 0.5)
+
+  ; Set path with cairo_rectangle
+  val r = Rectangle(10.0, 10.0, 10.0, 10.0)
+  rectangle(ctx, r)
+  fill(ctx)
+
+  val testPath = "test.png"
+  write-surface-to-png(sf, testPath)
+
+
+  val obsSf = create-surface-from-png(testPath)
+  val imgSf = to-image-surface(obsSf)
+
+  var pix = get-rgb(imgSf, 15, 15)
+
+  #EXPECT(red(pix) == 128.0)
+  #EXPECT(green(pix) == 128.0)
+  #EXPECT(blue(pix) == 128.0)
+
+  pix = get-rgb(imgSf, 5, 5)
+
+  #EXPECT(red(pix) == 0.0)
+  #EXPECT(green(pix) == 0.0)
+  #EXPECT(blue(pix) == 0.0)
+
+deftest(context) cairo-context-with-pattern :
+
+  val img = ImageSurface(CAIRO_FORMAT_RGB24, 50, 50)
+  val sf = to-surface(img)
+  val ctx = Context(sf)
+  val stat = get-status(ctx)
+  #EXPECT(stat == CAIRO_STATUS_SUCCESS)
+
+  val linPat = LinearPattern(Point2D(0.0, 0.0), Point2D(49.0, 49.0))
+  #EXPECT(get-status(linPat) == CAIRO_STATUS_SUCCESS)
+
+  add-color-stop(linPat, 0.0, RGB(0.1, 0.1, 0.1))
+  add-color-stop(linPat, 1.0, RGB(0.8, 0.8, 0.8))
+
+  set-source(ctx, linPat)
+
+  val r = Rectangle(2.0, 2.0, 46.0, 46.0)
+  rectangle(ctx, r)
+  fill(ctx)
+
+  val testPath = "test2.png"
+  write-surface-to-png(sf, testPath)
+
+  val obsSf = create-surface-from-png(testPath)
+  val imgSf = to-image-surface(obsSf)
+
+  var pix = get-rgb(imgSf, 1, 1)
+
+  #EXPECT(red(pix) == 0.0)
+  #EXPECT(green(pix) == 0.0)
+  #EXPECT(blue(pix) == 0.0)
+
+  pix = get-rgb(imgSf, 2, 2)
+
+  #EXPECT(red(pix) == 35.0)
+  #EXPECT(green(pix) == 35.0)
+  #EXPECT(blue(pix) == 35.0)
+
+  pix = get-rgb(imgSf, 47, 47)
+
+  #EXPECT(red(pix) == 199.0)
+  #EXPECT(green(pix) == 199.0)
+  #EXPECT(blue(pix) == 199.0)
+
+deftest(context) cairo-context-with-path :
+
+  val img = ImageSurface(CAIRO_FORMAT_RGB24, 50, 50)
+  val sf = to-surface(img)
+  val ctx = Context(sf)
+  val stat = get-status(ctx)
+  #EXPECT(stat == CAIRO_STATUS_SUCCESS)
+
+  ; Attempt to draw a simple image.
+  set-source(ctx, 0.5, 0.0, 0.0)
+
+  ; Set path with cairo_rectangle
+  curve-to(ctx, Point2D(1.0, 1.0), Point2D(20.0, 5.0), Point2D(30.0, 30.0))
+  stroke(ctx)
+
+  set-source(ctx, 0.0, 0.5, 0.0)
+  ; Set path with cairo_rectangle
+  arc(ctx, Point2D(1.0, 1.0), 20.0, 0.1, 0.6)
+  line-to(ctx, Point2D(0.0, 30.0))
+  move-to(ctx, 49.0, 49.0)
+  line-to(ctx, Point2D(40.0, 40.0))
+  stroke(ctx)
+
+  val testPath = "test3.png"
+  write-surface-to-png(sf, testPath)

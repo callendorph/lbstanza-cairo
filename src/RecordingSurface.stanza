@@ -1,0 +1,6 @@
+defpackage cairo/RecordingSurface :
+  import core
+
+extern cairo_recording_surface_create : (int,ptr<?>) -> ptr<?>
+extern cairo_recording_surface_ink_extents : (ptr<?>,ptr<double>,ptr<double>,ptr<double>,ptr<double>) -> int  ;  void
+extern cairo_recording_surface_get_extents : (ptr<?>,ptr<?>) -> int

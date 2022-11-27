@@ -1,0 +1,26 @@
+#use-added-syntax(tests)
+defpackage cairo/tests/ImageSurface :
+  import core
+  import cairo/Context
+  import cairo/ImageSurface
+  import cairo/Errors
+
+deftest(img-surface) cairo-img-surface :
+
+  val img = ImageSurface(CAIRO_FORMAT_RGB24, 100, 50)
+  val sf = to-surface(img)
+  val ctx = Context(sf)
+  val stat = get-status(ctx)
+  #EXPECT(stat == CAIRO_STATUS_SUCCESS)
+
+  val fmt = get-format(img)
+  #EXPECT(fmt == CAIRO_FORMAT_RGB24)
+
+  val width = get-width(img)
+  #EXPECT(width == 100)
+
+  val height = get-height(img)
+  #EXPECT(height == 50)
+
+  val stride = get-stride(img)
+  #EXPECT(stride > 0)

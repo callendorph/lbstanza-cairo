@@ -1,0 +1,132 @@
+defpackage cairo/Geometry :
+  import core
+  import cairo/Errors
+
+; This module contains some convenience types for working
+;  with the cairo library.
+
+public lostanza deftype Point2D :
+  x : double
+  y : double
+
+public lostanza defn Point2D () -> ref<Point2D> :
+  return new Point2D{0.0, 0.0}
+
+public lostanza defn Point2D (x:ref<Double>, y:ref<Double>) -> ref<Point2D> :
+  return new Point2D{x.value, y.value}
+
+public lostanza defn get-x (self:ref<Point2D>) -> ref<Double> :
+  return new Double{self.x}
+
+public lostanza defn get-y (self:ref<Point2D>) -> ref<Double> :
+  return new Double{self.y}
+
+defmethod print (o:OutputStream, p:Point2D) :
+  val x = get-x(p)
+  val y = get-y(p)
+  print(o, "Point2D(%_, %_)" % [x, y])
+
+; cairo_rectangle_int_t
+public lostanza deftype RectangleInt :
+  x : int
+  y : int
+  width : int
+  height : int
+
+public lostanza defn RectangleInt () -> ref<RectangleInt> :
+  return new RectangleInt{0,0,0,0}
+
+public lostanza defn RectangleInt (x:ref<Int>, y:ref<Int>, width:ref<Int>, height:ref<Int>) -> ref<RectangleInt> :
+  if width.value < 0 or height.value < 0 :
+    throw(InvalidArgument(String("Width/height must be greater than or equal to zero")))
+  return new RectangleInt{x.value, y.value, width.value, height.value}
+
+public lostanza defn get-x (self:ref<RectangleInt>) -> ref<Int> :
+  return new Int{self.x}
+
+public lostanza defn get-y (self:ref<RectangleInt>) -> ref<Int> :
+  return new Int{self.y}
+
+public lostanza defn get-width (self:ref<RectangleInt>) -> ref<Int> :
+  return new Int{self.width}
+
+public lostanza defn get-height (self:ref<RectangleInt>) -> ref<Int> :
+  return new Int{self.height}
+
+defmethod print (o:OutputStream, p:RectangleInt) :
+  val x = get-x(p)
+  val y = get-y(p)
+  val w = get-width(p)
+  val h = get-height(p)
+  print(o, "RectangleInt(%_, %_, %_, %_)" % [x, y, w, h])
+
+; Double-based Rectangle as a helper for the interfaces.
+; cairo_rectangle_t
+public lostanza deftype Rectangle :
+  x : double
+  y : double
+  width : double
+  height : double
+
+public lostanza defn Rectangle () -> ref<Rectangle> :
+  return new Rectangle{0.0, 0.0, 0.0, 0.0}
+
+public lostanza defn Rectangle (x:ref<Double>, y:ref<Double>, width:ref<Double>, height:ref<Double>) -> ref<Rectangle> :
+  if width.value < 0.0 or height.value < 0.0 :
+    throw(InvalidArgument(String("Width/height must be greater than or equal to zero")))
+  return new Rectangle{x.value, y.value, width.value, height.value}
+
+public lostanza defn get-x (self:ref<Rectangle>) -> ref<Double> :
+  return new Double{self.x}
+
+public lostanza defn get-y (self:ref<Rectangle>) -> ref<Double> :
+  return new Double{self.y}
+
+public lostanza defn get-width (self:ref<Rectangle>) -> ref<Double> :
+  return new Double{self.width}
+
+public lostanza defn get-height (self:ref<Rectangle>) -> ref<Double> :
+  return new Double{self.height}
+
+defmethod print (o:OutputStream, p:Rectangle) :
+  val x = get-x(p)
+  val y = get-y(p)
+  val w = get-width(p)
+  val h = get-height(p)
+  print(o, "Rectangle(%_, %_, %_, %_)" % [x, y, w, h])
+
+public lostanza deftype Circle:
+  x:double
+  y:double
+  r:double
+
+public lostanza defn Circle () -> ref<Circle> :
+  return new Circle{0.0, 0.0, 0.0}
+
+public lostanza defn Circle (x:ref<Double>, y:ref<Double>, r:ref<Double>) -> ref<Circle> :
+  if r.value < 0.0 :
+    throw(InvalidArgument(String("Radius must be greater than or equal to zero")))
+  return new Circle{x.value, y.value, r.value}
+
+public lostanza defn Circle (p:ref<Point2D>, r:ref<Double>) -> ref<Circle> :
+  if r.value < 0.0 :
+    throw(InvalidArgument(String("Radius must be greater than or equal to zero")))
+  return new Circle{p.x, p.y, r.value}
+
+public lostanza defn get-x (self:ref<Circle>) -> ref<Double> :
+  return new Double{self.x}
+
+public lostanza defn get-y (self:ref<Circle>) -> ref<Double> :
+  return new Double{self.y}
+
+public lostanza defn get-center (self:ref<Circle>) -> ref<Point2D> :
+  return new Point2D{self.x, self.y}
+
+public lostanza defn get-radius (self:ref<Circle>) -> ref<Double> :
+  return new Double{self.r}
+
+defmethod print (o:OutputStream, c:Circle) :
+  val x = get-x(c)
+  val y = get-y(c)
+  val r = get-radius(c)
+  print(o, "Circle(%_, %_, %_)" % [x, y, r])

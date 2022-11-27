@@ -1,0 +1,76 @@
+defpackage cairo/Device :
+  import core
+  import cairo/Errors
+
+extern cairo_device_reference : (ptr<?>) -> ptr<?>
+extern cairo_device_get_type : (ptr<?>) -> int
+extern cairo_device_status : (ptr<?>) -> int
+extern cairo_device_acquire : (ptr<?>) -> int
+extern cairo_device_release : (ptr<?>) -> int  ;  void
+extern cairo_device_flush : (ptr<?>) -> int  ;  void
+extern cairo_device_finish : (ptr<?>) -> int  ;  void
+extern cairo_device_destroy : (ptr<?>) -> int  ;  void
+extern cairo_device_get_reference_count : (ptr<?>) -> int
+extern cairo_device_get_user_data : (ptr<?>,ptr<?>) -> ptr<?>
+extern cairo_device_set_user_data : (ptr<?>,ptr<?>,ptr<?>,int) -> int
+extern cairo_device_observer_print : (ptr<?>,int,ptr<?>) -> int
+extern cairo_device_observer_elapsed : (ptr<?>) -> double
+extern cairo_device_observer_paint_elapsed : (ptr<?>) -> double
+extern cairo_device_observer_mask_elapsed : (ptr<?>) -> double
+extern cairo_device_observer_fill_elapsed : (ptr<?>) -> double
+extern cairo_device_observer_stroke_elapsed : (ptr<?>) -> double
+extern cairo_device_observer_glyphs_elapsed : (ptr<?>) -> double
+
+
+lostanza deftype DeviceFinalizer <: Finalizer :
+  value:ptr<?>
+
+lostanza defmethod run (self:ref<DeviceFinalizer>) -> ref<False> :
+  call-c cairo_device_destroy(self.value)
+  return false
+
+public lostanza deftype Device <: Unique :
+  value : ptr<?>
+
+lostanza defn Device (p:ptr<?>) -> ref<Device> :
+  val ret = new Device{p}
+  add-finalizer(new DeviceFinalizer{p}, ret)
+  return ret
+
+public lostanza defn get-ref (self:ref<Device>) -> ref<Device> :
+  val ret = call-c cairo_device_reference(self.value)
+  return Device(ret)
+
+public lostanza defn get-ref-count (self:ref<Device>) -> ref<Int> :
+  val ret = call-c cairo_device_get_reference_count(self.value)
+  return new Int{ret}
+
+public lostanza defn get-status (self:ref<Device>) -> ref<Int> :
+  val ret = call-c cairo_device_status(self.value)
+  return new Int{ret}
+
+public defn check-status (self:Device) :
+  check-status(get-status(self))
+
+public lostanza defn finish (self:ref<Device>) -> ref<False> :
+  call-c cairo_device_finish(self.value)
+  return false
+
+public lostanza defn flush (self:ref<Device>) -> ref<False> :
+  call-c cairo_device_flush(self.value)
+  return false
+
+public lostanza defn get-type (self:ref<Device>) -> ref<Int> :
+  val ret = call-c cairo_device_get_type(self.value)
+  return new Int{ret}
+
+; set_user_data / get_user_data not implemented yet.
+
+public lostanza defn acquire (self:ref<Device>) -> ref<Int> :
+  val ret = call-c cairo_device_acquire(self.value)
+  check-status(ret)
+  return new Int{ret}
+
+public lostanza defn release (self:ref<Device>) -> ref<False> :
+  call-c cairo_device_release(self.value)
+  return false

@@ -1,0 +1,18 @@
+defpackage cairo/PNG :
+  import core
+  import cairo/Surface
+
+extern cairo_image_surface_create_from_png : (ptr<byte>) -> ptr<?>
+extern cairo_image_surface_create_from_png_stream : (int,ptr<?>) -> ptr<?>
+extern cairo_surface_write_to_png : (ptr<?>,ptr<byte>) -> int
+extern cairo_surface_write_to_png_stream : (ptr<?>,int,ptr<?>) -> int
+
+public lostanza defn create-surface-from-png (path:ref<String>) -> ref<Surface> :
+  val p = call-c cairo_image_surface_create_from_png(addr!(path.chars))
+  return Surface(p)
+
+public lostanza defn write-surface-to-png (surface:ref<Surface>, path:ref<String>) -> ref<Int> :
+  val ret = call-c cairo_surface_write_to_png(surface.value, addr!(path.chars))
+  return new Int{ret}
+
+

@@ -1,0 +1,230 @@
+defpackage cairo/Patterns :
+  import core
+  import cairo/Surface
+  import cairo/Geometry
+  import cairo/Colors
+  import cairo/Errors
+  import cairo/Matrix
+
+extern cairo_pattern_create_rgb : (double,double,double) -> ptr<?>
+extern cairo_pattern_create_rgba : (double,double,double,double) -> ptr<?>
+extern cairo_pattern_create_for_surface : (ptr<?>) -> ptr<?>
+extern cairo_pattern_create_linear : (double,double,double,double) -> ptr<?>
+extern cairo_pattern_create_radial : (double,double,double,double,double,double) -> ptr<?>
+extern cairo_pattern_create_mesh : () -> ptr<?>
+extern cairo_pattern_reference : (ptr<?>) -> ptr<?>
+extern cairo_pattern_destroy : (ptr<?>) -> int  ;  void
+extern cairo_pattern_get_reference_count : (ptr<?>) -> int
+extern cairo_pattern_status : (ptr<?>) -> int
+extern cairo_pattern_get_user_data : (ptr<?>,ptr<?>) -> ptr<?>
+extern cairo_pattern_set_user_data : (ptr<?>,ptr<?>,ptr<?>,int) -> int
+extern cairo_pattern_get_type : (ptr<?>) -> int
+extern cairo_pattern_add_color_stop_rgb : (ptr<?>,double,double,double,double) -> int  ;  void
+extern cairo_pattern_add_color_stop_rgba : (ptr<?>,double,double,double,double,double) -> int  ;  void
+extern cairo_mesh_pattern_begin_patch : (ptr<?>) -> int  ;  void
+extern cairo_mesh_pattern_end_patch : (ptr<?>) -> int  ;  void
+extern cairo_mesh_pattern_curve_to : (ptr<?>,double,double,double,double,double,double) -> int  ;  void
+extern cairo_mesh_pattern_line_to : (ptr<?>,double,double) -> int  ;  void
+extern cairo_mesh_pattern_move_to : (ptr<?>,double,double) -> int  ;  void
+extern cairo_mesh_pattern_set_control_point : (ptr<?>,int,double,double) -> int  ;  void
+extern cairo_mesh_pattern_set_corner_color_rgb : (ptr<?>,int,double,double,double) -> int  ;  void
+extern cairo_mesh_pattern_set_corner_color_rgba : (ptr<?>,int,double,double,double,double) -> int  ;  void
+extern cairo_pattern_set_matrix : (ptr<?>,ptr<?>) -> int  ;  void
+extern cairo_pattern_get_matrix : (ptr<?>,ptr<?>) -> int  ;  void
+extern cairo_pattern_set_extend : (ptr<?>,int) -> int  ;  void
+extern cairo_pattern_get_extend : (ptr<?>) -> int
+extern cairo_pattern_set_filter : (ptr<?>,int) -> int  ;  void
+extern cairo_pattern_get_filter : (ptr<?>) -> int
+extern cairo_pattern_get_rgba : (ptr<?>,ptr<double>,ptr<double>,ptr<double>,ptr<double>) -> int
+extern cairo_pattern_get_surface : (ptr<?>,ptr<ptr<?>>) -> int
+extern cairo_pattern_get_color_stop_rgba : (ptr<?>,int,ptr<double>,ptr<double>,ptr<double>,ptr<double>,ptr<double>) -> int
+extern cairo_pattern_get_color_stop_count : (ptr<?>,ptr<int>) -> int
+extern cairo_pattern_get_linear_points : (ptr<?>,ptr<double>,ptr<double>,ptr<double>,ptr<double>) -> int
+extern cairo_pattern_get_radial_circles : (ptr<?>,ptr<double>,ptr<double>,ptr<double>,ptr<double>,ptr<double>,ptr<double>) -> int
+extern cairo_mesh_pattern_get_patch_count : (ptr<?>,ptr<int>) -> int
+extern cairo_mesh_pattern_get_path : (ptr<?>,int) -> ptr<?>
+extern cairo_mesh_pattern_get_corner_color_rgba : (ptr<?>,int,int,ptr<double>,ptr<double>,ptr<double>,ptr<double>) -> int
+extern cairo_mesh_pattern_get_control_point : (ptr<?>,int,int,ptr<double>,ptr<double>) -> int
+
+public val CAIRO_PATTERN_TYPE_SOLID:Int = 0
+public val CAIRO_PATTERN_TYPE_SURFACE:Int = 1
+public val CAIRO_PATTERN_TYPE_LINEAR:Int = 2
+public val CAIRO_PATTERN_TYPE_RADIAL:Int = 3
+public val CAIRO_PATTERN_TYPE_MESH:Int = 4
+public val CAIRO_PATTERN_TYPE_RASTER_SOURCE:Int = 5
+
+lostanza deftype PatternFinalizer <: Finalizer :
+  value:ptr<?>
+
+lostanza defmethod run (self:ref<PatternFinalizer>) -> ref<False> :
+  call-c cairo_pattern_destroy(self.value)
+  return false
+
+public lostanza deftype Pattern <: Unique :
+  value : ptr<?>
+
+public lostanza defn Pattern (p:ptr<?>) -> ref<Pattern> :
+  ; Note that this should only be used internally for
+  ;   making sure that reference counting is handled properly.
+  val ret = new Pattern{p}
+  add-finalizer(new PatternFinalizer{p}, ret)
+  return ret
+
+public lostanza defn Pattern (r:ref<Double>, g:ref<Double>, b:ref<Double>) -> ref<Pattern> :
+  val ret = call-c cairo_pattern_create_rgb(r.value, g.value, b.value)
+  return Pattern(ret)
+
+public lostanza defn Pattern (r:ref<Double>, g:ref<Double>, b:ref<Double>, a:ref<Double>) -> ref<Pattern> :
+  val ret = call-c cairo_pattern_create_rgba(r.value, g.value, b.value, a.value)
+  return Pattern(ret)
+
+public lostanza defn get-solid-color (self:ref<Pattern>) -> ref<ARGB> :
+  val c = ARGB()
+  val stat = call-c cairo_pattern_get_rgba(self.value, addr!(c.r), addr!(c.g), addr!(c.b), addr!(c.a))
+  check-status(stat)
+  return c
+
+public lostanza defn Pattern (surface:ref<Surface>) -> ref<Pattern> :
+  val ret = call-c cairo_pattern_create_for_surface(surface.value)
+  return Pattern(ret)
+
+; @NOTE - this is a hack to work around lostanza issues.
+;  values declared inside the function can get allocated on registers
+;  which can't be called as pointers.
+lostanza deftype Ptr2Ptr:
+  p:ptr<?>
+
+public lostanza defn get-surface (self:ref<Pattern>) -> ref<Surface> :
+  val temp = new Ptr2Ptr{null}
+  val stat = call-c cairo_pattern_get_surface(self.value, addr!(temp.p))
+  check-status(stat)
+  if temp.p == null :
+    fatal("Invalid Pointer Returned by 'cairo_pattern_get_surface'")
+  return get-surface-ref(temp.p)
+
+public lostanza defn LinearPattern (x0:ref<Double>, y0:ref<Double>, x1:ref<Double>, y1:ref<Double>) -> ref<Pattern> :
+  val ret = call-c cairo_pattern_create_linear(x0.value, y0.value, x1.value, y1.value)
+  return Pattern(ret)
+
+public lostanza defn LinearPattern (p0:ref<Point2D>, p1:ref<Point2D>) -> ref<Pattern> :
+  val ret = call-c cairo_pattern_create_linear(p0.x, p0.y, p1.x, p1.y)
+  return Pattern(ret)
+
+public lostanza defn get-linear-points (self:ref<Pattern>) -> ref<[Point2D, Point2D]> :
+  val p0 = Point2D()
+  val p1 = Point2D()
+  val stat = call-c cairo_pattern_get_linear_points(self.value, addr!(p0.x), addr!(p0.y), addr!(p1.x), addr!(p1.y))
+  check-status(stat)
+  val ret = core/void-tuple(2)
+  ret.items[0] = p0
+  ret.items[1] = p1
+  return ret as ref<[Point2D, Point2D]>
+
+public lostanza defn RadialPattern (cx0:ref<Double>, cy0:ref<Double>, r0:ref<Double>, cx1:ref<Double>, cy1:ref<Double>, r1:ref<Double>,) -> ref<Pattern> :
+  val ret = call-c cairo_pattern_create_radial(cx0.value, cy0.value, r0.value, cx1.value, cy1.value, r1.value)
+  return Pattern(ret)
+
+public lostanza defn RadialPattern (c0:ref<Point2D>, r0:ref<Double>, c1:ref<Point2D>, r1:ref<Double>) -> ref<Pattern> :
+  val ret = call-c cairo_pattern_create_radial(c0.x, c0.y, r0.value, c1.x, c1.y, r1.value)
+  return Pattern(ret)
+
+public lostanza defn RadialPattern (c0:ref<Circle>, c1:ref<Circle>) -> ref<Pattern> :
+  val ret = call-c cairo_pattern_create_radial(c0.x, c0.y, c0.r, c1.x, c1.y, c1.r)
+  return Pattern(ret)
+
+public lostanza defn get-radial-circles (self:ref<Pattern>) -> ref<[Circle, Circle]> :
+  val c0 = Circle()
+  val c1 = Circle()
+  val stat = call-c cairo_pattern_get_radial_circles(self.value, addr!(c0.x), addr!(c0.y), addr!(c0.r), addr!(c1.x), addr!(c1.y), addr!(c1.r))
+  check-status(stat)
+  val ret = core/void-tuple(2)
+  ret.items[0] = c0
+  ret.items[1] = c1
+  return ret as ref<[Circle, Circle]>
+
+; @TODO mesh pattern
+
+public lostanza defn get-ref (self:ref<Pattern>) -> ref<Pattern> :
+  val ret = call-c cairo_pattern_reference(self.value)
+  return Pattern(ret)
+
+public lostanza defn get-pattern-ref (p:ptr<?>) -> ref<Pattern> :
+  val ret = call-c cairo_pattern_reference(p)
+  return Pattern(ret)
+
+public lostanza defn get-ref-count (self:ref<Pattern>) -> ref<Int> :
+  val ret = call-c cairo_pattern_get_reference_count(self.value)
+  return new Int{ret}
+
+public lostanza defn get-status (self:ref<Pattern>) -> ref<Int> :
+  val ret = call-c cairo_pattern_status(self.value)
+  return new Int{ret}
+
+public defn check-status (self:Pattern) :
+  check-status(get-status(self))
+
+public lostanza defn set-extend (self:ref<Pattern>, extend:ref<Int>) -> ref<False> :
+  val ret = call-c cairo_pattern_set_extend(self.value, extend.value)
+  return false
+
+public lostanza defn get-extend (self:ref<Pattern>) -> ref<Int> :
+  val ret = call-c cairo_pattern_get_extend(self.value)
+  return new Int{ret}
+
+public lostanza defn set-filter (self:ref<Pattern>, f:ref<Int>) -> ref<False> :
+  val ret = call-c cairo_pattern_set_filter(self.value, f.value)
+  return false
+
+public lostanza defn get-filter (self:ref<Pattern>) -> ref<Int> :
+  val ret = call-c cairo_pattern_get_filter(self.value)
+  return new Int{ret}
+
+public lostanza defn add-color-stop (self:ref<Pattern>, offset:ref<Double>, color:ref<RGB>) -> ref<False> :
+  call-c cairo_pattern_add_color_stop_rgb(self.value, offset.value, color.r, color.g, color.b)
+  check-status(self)
+  return false
+
+public lostanza defn add-color-stop (self:ref<Pattern>, offset:ref<Double>, color:ref<ARGB>) -> ref<False> :
+  call-c cairo_pattern_add_color_stop_rgba(self.value, offset.value, color.r, color.g, color.b, color.a)
+  check-status(self)
+  return false
+
+; @NOTE - This is a hack
+;   currently stanza can handle making pointers to
+;   objects declared locally because they may end up as registers.
+lostanza deftype IndexInt :
+  index:int
+
+public lostanza defn get-color-stop-count (self:ref<Pattern>) -> ref<Int> :
+  val temp = new IndexInt{0}
+  val ret = call-c cairo_pattern_get_color_stop_count(self.value, addr!(temp.index))
+  check-status(ret)
+  return new Int{temp.index}
+
+lostanza deftype OffsetDouble :
+  offset:double
+
+public lostanza defn get-color-stop (self:ref<Pattern>, index:ref<Int>) -> ref<[Double,ARGB]> :
+  val temp = new OffsetDouble{0.0}
+  val c = ARGB()
+  val stat = call-c cairo_pattern_get_color_stop_rgba(self.value, index.value, addr!(temp.offset), addr!(c.r), addr!(c.g), addr!(c.b), addr!(c.a))
+  check-status(stat)
+  val ret = core/void-tuple(2)
+  ret.items[0] = new Double{temp.offset}
+  ret.items[1] = c
+  return ret as ref<[Double, ARGB]>
+
+public lostanza defn set-matrix (self:ref<Pattern>, m:ref<Matrix2D>) -> ref<False> :
+  call-c cairo_pattern_set_matrix(self.value, addr!(m.xx))
+  return false
+
+public lostanza defn get-matrix (self:ref<Pattern>) -> ref<Matrix2D> :
+  val ret = Matrix2D()
+  call-c cairo_pattern_get_matrix(self.value, addr!(ret.xx))
+  return ret
+
+public lostanza defn get-type (self:ref<Pattern>) -> ref<Int> :
+  val ret = call-c cairo_pattern_get_type(self.value)
+  return new Int{ret}
+
+; set/get user data

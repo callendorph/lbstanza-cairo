@@ -1,0 +1,12 @@
+#use-added-syntax(tests)
+defpackage cairo/tests/Matrix :
+  import core
+  import cairo/Matrix
+
+deftest(matrix) cairo-matrix-basic :
+
+  var t = Translate(10.0, 20.0)
+  t = Scale(10.0, -10.0)
+  t = Rotate(3.14)
+  t = Identity()
+

@@ -1,0 +1,374 @@
+defpackage cairo/Context :
+  import core
+  import cairo/Surface
+  import cairo/Patterns
+  import cairo/Geometry
+  import cairo/Errors
+
+extern cairo_create : (ptr<?>) -> ptr<?> ; cairo_t *
+extern cairo_reference : (ptr<?>) -> ptr<?> ; cairo_t *
+extern cairo_destroy : (ptr<?>) -> int  ; void
+extern cairo_status : (ptr<?>) -> int  ; cairo_status_t
+extern cairo_save  : (ptr<?>) -> int  ; void
+extern cairo_restore  : (ptr<?>) -> int  ; void
+extern cairo_get_target  : (ptr<?>) -> ptr<?> ; cairo_surface_t *
+extern cairo_push_group  : (ptr<?>) -> int  ; void
+extern cairo_push_group_with_content  : (ptr<?>, int) -> int  ; void   (arg int = cairo_content_t)
+extern cairo_pop_group  : (ptr<?>) -> ptr<?> ; cairo_pattern_t *
+extern cairo_pop_group_to_source  : (ptr<?>) -> int  ; void
+extern cairo_get_group_target  : (ptr<?>) -> ptr<?> ; cairo_surface_t *
+extern cairo_set_source_rgb  : (ptr<?>, double, double, double) -> int  ; void    (arg = rgb)
+extern cairo_set_source_rgba  : (ptr<?>, double, double, double, double) -> int  ; void   (arg = rgba)
+extern cairo_set_source  : (ptr<?>, ptr<?>) -> int  ; void  (arg = cairo_pattern_t *)
+extern cairo_set_source_surface  : (ptr<?>, ptr<?>, double, double) -> int  ; void
+extern cairo_get_source  : (ptr<?>) -> ptr<?> ; cairo_pattern_t *
+extern cairo_set_antialias  : (ptr<?>, int) -> int  ; void  (arg = cairo_antialias_t)
+extern cairo_get_antialias  : (ptr<?>) -> int ; cairo_antialias_t
+extern cairo_set_dash  : (ptr<?>, ptr<?>, int, double) -> int  ; void  (arg double * dashes, num_dashes, offset)
+extern cairo_get_dash_count  : (ptr<?>) -> int
+extern cairo_get_dash  : (ptr<?>, ptr<?>, ptr<?>) -> int  ; void arg (double *dashes, double *offset)
+extern cairo_set_fill_rule  : (ptr<?>, int) -> int  ; void  (Arg = cairo_fill_rule_t)
+extern cairo_get_fill_rule  : (ptr<?>) -> int ; cairo_fill_rule_t
+extern cairo_set_line_cap  : (ptr<?>, int) -> int  ; void
+extern cairo_get_line_cap  : (ptr<?>) -> int ; cairo_line_cap_t
+extern cairo_set_line_join  : (ptr<?>, int) -> int  ; void
+extern cairo_get_line_join  : (ptr<?>) -> int ; cairo_line_join_t
+extern cairo_set_line_width  : (ptr<?>, double) -> int  ; void
+extern cairo_get_line_width  : (ptr<?>) -> double
+extern cairo_set_miter_limit  : (ptr<?>, double) -> int  ; void
+extern cairo_get_miter_limit  : (ptr<?>) -> double
+extern cairo_set_operator  : (ptr<?>, int) -> int  ; void
+extern cairo_get_operator  : (ptr<?>) -> int ; cairo_operator_t
+extern cairo_set_tolerance  : (ptr<?>, double) -> int  ; void
+extern cairo_get_tolerance  : (ptr<?>) -> double
+extern cairo_clip  : (ptr<?>) -> int  ; void
+extern cairo_clip_preserve  : (ptr<?>) -> int  ; void
+extern cairo_clip_extents  : (ptr<?>, ptr<?>,ptr<?>,ptr<?>,ptr<?>) -> int  ; void arg (ptr x1, y1, x2, y2)
+extern cairo_in_clip  : (ptr<?>, double, double) -> int ; cairo_bool_t
+extern cairo_reset_clip  : (ptr<?>) -> int  ; void
+extern cairo_rectangle_list_destroy  : (ptr<?>) -> int  ; void (arg = cairo_rectangle_list_t * )
+extern cairo_copy_clip_rectangle_list  : (ptr<?>) -> ptr<?> ; cairo_rectangle_list_t *
+extern cairo_fill  : (ptr<?>) -> int  ; void
+extern cairo_fill_preserve  : (ptr<?>) -> int  ; void
+extern cairo_fill_extents  : (ptr<?>, ptr<?>,ptr<?>,ptr<?>,ptr<?>) -> int  ; void
+extern cairo_in_fill  : (ptr<?>, double, double) -> int ; cairo_bool_t
+extern cairo_mask  : (ptr<?>, ptr<?>) -> int  ; void
+extern cairo_mask_surface  : (ptr<?>, ptr<?>, double, double) -> int  ; void
+extern cairo_paint  : (ptr<?>,) -> int  ; void
+extern cairo_paint_with_alpha  : (ptr<?>, double) -> int  ; void
+extern cairo_stroke  : (ptr<?>) -> int  ; void
+extern cairo_stroke_preserve  : (ptr<?>) -> int  ; void
+extern cairo_stroke_extents  : (ptr<?>, ptr<?>,ptr<?>,ptr<?>,ptr<?>) -> int  ; void
+extern cairo_in_stroke  : (ptr<?>, double, double) -> int ; cairo_bool_t
+extern cairo_copy_page  : (ptr<?>) -> int  ; void
+extern cairo_show_page  : (ptr<?>) -> int  ; void
+extern cairo_get_reference_count  : (ptr<?>) -> int ; unsigned int
+extern cairo_set_user_data  : (ptr<?>, ptr<?>, ptr<?>, ptr<(ptr<?> -> int)>) -> int  ; cairo_status_t
+extern cairo_get_user_data  : () -> ptr<?> ; void *
+
+; cairo_antialias_t
+public val CAIRO_ANTIALIAS_DEFAULT:Int = 0
+public val CAIRO_ANTIALIAS_NONE:Int = 1
+public val CAIRO_ANTIALIAS_GRAY:Int = 2
+public val CAIRO_ANTIALIAS_SUBPIXEL:Int = 3
+public val CAIRO_ANTIALIAS_FAST:Int = 4
+public val CAIRO_ANTIALIAS_GOOD:Int = 5
+public val CAIRO_ANTIALIAS_BEST:Int = 6
+
+; cairo_fill_rule_t
+public val CAIRO_FILL_RULE_WINDING:Int = 0
+public val CAIRO_FILL_RULE_EVEN_ODD:Int = 1
+
+; cairo_line_cap_t
+public val CAIRO_LINE_CAP_BUTT:Int = 0
+public val CAIRO_LINE_CAP_ROUND:Int = 1
+public val CAIRO_LINE_CAP_SQUARE:Int = 2
+
+; cairo_line_join_t
+public val CAIRO_LINE_JOIN_MITER:Int = 0
+public val CAIRO_LINE_JOIN_ROUND:Int = 1
+public val CAIRO_LINE_JOIN_BEVEL:Int = 2
+
+; cairo_operator_t
+public val CAIRO_OPERATOR_CLEAR:Int = 0
+
+public val CAIRO_OPERATOR_SOURCE:Int = 1
+public val CAIRO_OPERATOR_OVER:Int = 2
+public val CAIRO_OPERATOR_IN:Int = 3
+public val CAIRO_OPERATOR_OUT:Int = 4
+public val CAIRO_OPERATOR_ATOP:Int = 5
+
+public val CAIRO_OPERATOR_DEST:Int = 6
+public val CAIRO_OPERATOR_DEST_OVER:Int = 7
+public val CAIRO_OPERATOR_DEST_IN:Int = 8
+public val CAIRO_OPERATOR_DEST_OUT:Int = 9
+public val CAIRO_OPERATOR_DEST_ATOP:Int = 10
+
+public val CAIRO_OPERATOR_XOR:Int = 11
+public val CAIRO_OPERATOR_ADD:Int = 12
+public val CAIRO_OPERATOR_SATURATE:Int = 13
+
+public val CAIRO_OPERATOR_MULTIPLY:Int = 14
+public val CAIRO_OPERATOR_SCREEN:Int = 15
+public val CAIRO_OPERATOR_OVERLAY:Int = 16
+public val CAIRO_OPERATOR_DARKEN:Int = 17
+public val CAIRO_OPERATOR_LIGHTEN:Int = 18
+public val CAIRO_OPERATOR_COLOR_DODGE:Int = 19
+public val CAIRO_OPERATOR_COLOR_BURN:Int = 20
+public val CAIRO_OPERATOR_HARD_LIGHT:Int = 21
+public val CAIRO_OPERATOR_SOFT_LIGHT:Int = 22
+public val CAIRO_OPERATOR_DIFFERENCE:Int = 23
+public val CAIRO_OPERATOR_EXCLUSION:Int = 24
+public val CAIRO_OPERATOR_HSL_HUE:Int = 25
+public val CAIRO_OPERATOR_HSL_SATURATION:Int = 26
+public val CAIRO_OPERATOR_HSL_COLOR:Int = 27
+public val CAIRO_OPERATOR_HSL_LUMINOSITY:Int = 28
+
+lostanza deftype ContextFinalizer <: Finalizer :
+  value:ptr<?>
+
+lostanza defmethod run (self:ref<ContextFinalizer>) -> ref<False> :
+  call-c cairo_destroy(self.value)
+  return false
+
+public lostanza deftype Context <: Unique :
+  value : ptr<?>
+
+public lostanza defn Context (p:ptr<?>) -> ref<Context> :
+  ; Note that this should only be used internally for
+  ;   making sure that reference counting is handled properly.
+  val ret = new Context{p}
+  add-finalizer(new ContextFinalizer{p}, ret)
+  return ret
+
+public lostanza defn Context (surface:ref<Surface>) -> ref<Context> :
+  val ret = call-c cairo_create(surface.value)
+  return Context(ret)
+
+public lostanza defn get-ref (self:ref<Context>) -> ref<Context> :
+  val ret = call-c cairo_reference(self.value)
+  return Context(ret)
+
+public lostanza defn get-ref-count (self:ref<Context>) -> ref<Int> :
+  val ret = call-c cairo_get_reference_count(self.value)
+  return new Int{ret}
+
+public lostanza defn get-status (self:ref<Context>) -> ref<Int> :
+  val ret = call-c cairo_status(self.value)
+  return new Int{ret}
+
+public defn check-status (self:Context) :
+  check-status(get-status(self))
+
+public lostanza defn save (self:ref<Context>) -> ref<False> :
+  call-c cairo_save(self.value)
+  return false
+
+public lostanza defn restore (self:ref<Context>) -> ref<False> :
+  call-c cairo_restore(self.value)
+  return false
+
+public lostanza defn get-target (self:ref<Context>) -> ref<Surface> :
+  val pRet = call-c cairo_get_target(self.value)
+  return get-surface-ref(pRet)
+
+public lostanza defn push-group (self:ref<Context>) -> ref<False> :
+  call-c cairo_push_group(self.value)
+  return false
+
+public lostanza defn push-group (self:ref<Context>, content:ref<Int>) -> ref<False> :
+  call-c cairo_push_group_with_content(self.value, content.value)
+  return false
+
+public lostanza defn pop-group (self:ref<Context>) -> ref<Pattern> :
+  val ret = call-c cairo_pop_group(self.value)
+  return Pattern(ret)
+
+public lostanza defn pop-group-to-src (self:ref<Context>) -> ref<False> :
+  call-c cairo_pop_group_to_source(self.value)
+  return false
+
+public lostanza defn get-group-target (self:ref<Context>) -> ref<Surface> :
+  val pRet = call-c cairo_get_group_target(self.value)
+  val ret = get-surface-ref(pRet)
+  return ret
+
+public lostanza defn set-source (self:ref<Context>, red:ref<Double>, green:ref<Double>, blue:ref<Double>) -> ref<False> :
+  call-c cairo_set_source_rgb(self.value, red.value, green.value, blue.value)
+  return false
+
+public lostanza defn set-source (self:ref<Context>, red:ref<Double>, green:ref<Double>, blue:ref<Double>, alpha:ref<Double>) -> ref<False> :
+  call-c cairo_set_source_rgba(self.value, red.value, green.value, blue.value, alpha.value)
+  return false
+
+public lostanza defn set-source (self:ref<Context>, src:ref<Pattern>) -> ref<False> :
+  call-c cairo_set_source(self.value, src.value)
+  return false
+
+public lostanza defn set-source (self:ref<Context>, surface:ref<Surface>, x:ref<Double>, y:ref<Double>) -> ref<False> :
+  call-c cairo_set_source_surface(self.value, surface.value, x.value, y.value)
+  return false
+
+public lostanza defn set-source (self:ref<Context>, surface:ref<Surface>, p:ref<Point2D>) -> ref<False> :
+  call-c cairo_set_source_surface(self.value, surface.value, p.x, p.y)
+  return false
+
+public lostanza defn get-source (self:ref<Context>) -> ref<Pattern> :
+  val pRet = call-c cairo_get_source(self.value)
+  val ret = get-pattern-ref(pRet)
+  return ret
+
+public lostanza defn set-antialias (self:ref<Context>, antialias:ref<Int>) -> ref<False> :
+  call-c cairo_set_antialias(self.value, antialias.value)
+  return false
+
+public lostanza defn get-antialias (self:ref<Context>) -> ref<Int> :
+  val ret = call-c cairo_get_antialias(self.value)
+  return new Int{ret}
+
+public lostanza defn set-dash (self:ref<Context>, dashes:ptr<double>, num_dashes:int, offset:double) -> ref<False> :
+  call-c cairo_set_dash(self.value, dashes, num_dashes, offset)
+  return false
+
+public lostanza defn get-dash-count (self:ref<Context>) -> ref<Int> :
+  val ret = call-c cairo_get_dash_count(self.value)
+  return new Int{ret}
+
+; @TODO - get-dashes
+
+public lostanza defn set-fill-rule (self:ref<Context>, v:ref<Int>) -> ref<False> :
+  call-c cairo_set_fill_rule(self.value, v.value)
+  return false
+
+public lostanza defn get-fill-rule (self:ref<Context>) -> ref<Int> :
+  val ret = call-c cairo_get_fill_rule(self.value)
+  return new Int{ret}
+
+public lostanza defn set-line-cap (self:ref<Context>, v:ref<Int>) -> ref<False> :
+  call-c cairo_set_line_cap(self.value, v.value)
+  return false
+
+public lostanza defn get-line-cap (self:ref<Context>) -> ref<Int> :
+  val ret = call-c cairo_get_line_cap(self.value)
+  return new Int{ret}
+
+public lostanza defn set-line-join (self:ref<Context>, v:ref<Int>) -> ref<False> :
+  call-c cairo_set_line_join(self.value, v.value)
+  return false
+
+public lostanza defn get-line-join (self:ref<Context>) -> ref<Int> :
+  val ret = call-c cairo_get_line_cap(self.value)
+  return new Int{ret}
+
+public lostanza defn set-line-width (self:ref<Context>, v:ref<Double>) -> ref<False> :
+  call-c cairo_set_line_width(self.value, v.value)
+  return false
+
+public lostanza defn get-line-width (self:ref<Context>) -> ref<Double> :
+  val ret = call-c cairo_get_line_width(self.value)
+  return new Double{ret}
+
+public lostanza defn set-miter-limit (self:ref<Context>, v:ref<Double>) -> ref<False> :
+  call-c cairo_set_miter_limit(self.value, v.value)
+  return false
+
+public lostanza defn get-miter-limit (self:ref<Context>) -> ref<Double> :
+  val ret = call-c cairo_get_miter_limit(self.value)
+  return new Double{ret}
+
+public lostanza defn set-operator (self:ref<Context>, v:ref<Int>) -> ref<False> :
+  call-c cairo_set_operator(self.value, v.value)
+  return false
+
+public lostanza defn get-operator (self:ref<Context>) -> ref<Int> :
+  val ret = call-c cairo_get_operator(self.value)
+  return new Int{ret}
+
+public lostanza defn set-tolerance (self:ref<Context>, v:ref<Double>) -> ref<False> :
+  call-c cairo_set_tolerance(self.value, v.value)
+  return false
+
+public lostanza defn get-tolerance (self:ref<Context>) -> ref<Double> :
+  val ret = call-c cairo_get_tolerance(self.value)
+  return new Double{ret}
+
+public lostanza defn clip (self:ref<Context>) -> ref<False> :
+  call-c cairo_clip(self.value)
+  return false
+
+public lostanza defn clip-preserve (self:ref<Context>) -> ref<False> :
+  call-c cairo_clip_preserve(self.value)
+  return false
+
+public lostanza defn clip-extents (self:ref<Context>) -> ref<Rectangle> :
+  val ret = Rectangle()
+  call-c cairo_clip_extents(self.value, addr!(ret.x), addr!(ret.y), addr!(ret.width), addr!(ret.height))
+  return ret
+
+public lostanza defn in-clip? (self:ref<Context>, x:ref<Double>, y:ref<Double>) -> ref<Int> :
+  val ret = call-c cairo_in_clip(self.value, x.value, y.value)
+  return new Int{ret}
+
+public lostanza defn reset-clip (self:ref<Context>) -> ref<False> :
+  call-c cairo_reset_clip(self.value)
+  return false
+
+public lostanza defn fill (self:ref<Context>) -> ref<False> :
+  call-c cairo_fill(self.value)
+  return false
+
+public lostanza defn fill-preserve (self:ref<Context>) -> ref<False> :
+  call-c cairo_fill_preserve(self.value)
+  return false
+
+public lostanza defn fill-extents (self:ref<Context>) -> ref<Rectangle> :
+  val ret = Rectangle()
+  call-c cairo_fill_extents(self.value, addr!(ret.x), addr!(ret.y), addr!(ret.width), addr!(ret.height))
+  return ret
+
+public lostanza defn in-fill? (self:ref<Context>, x:ref<Double>, y:ref<Double>) -> ref<Int> :
+  val ret = call-c cairo_in_fill(self.value, x.value, y.value)
+  return new Int{ret}
+
+public lostanza defn mask (self:ref<Context>, pattern:ref<Pattern>) -> ref<False> :
+  call-c cairo_mask(self.value, pattern.value)
+  return false
+
+public lostanza defn mask (self:ref<Context>, surface:ref<Surface>, x:ref<Double>, y:ref<Double>) -> ref<False> :
+  call-c cairo_mask_surface(self.value, surface.value, x.value, y.value)
+  return false
+
+public lostanza defn paint (self:ref<Context>) -> ref<False> :
+  call-c cairo_paint(self.value)
+  return false
+
+public lostanza defn paint (self:ref<Context>, alpha:ref<Double>) -> ref<False> :
+  call-c cairo_paint_with_alpha(self.value, alpha.value)
+  return false
+
+public lostanza defn stroke (self:ref<Context>) -> ref<False> :
+  call-c cairo_stroke(self.value)
+  return false
+
+public lostanza defn stroke-preserve (self:ref<Context>) -> ref<False> :
+  call-c cairo_stroke_preserve(self.value)
+  return false
+
+public lostanza defn stroke-extents (self:ref<Context>) -> ref<Rectangle> :
+  val ret = Rectangle()
+  call-c cairo_stroke_extents(self.value, addr!(ret.x), addr!(ret.y), addr!(ret.width), addr!(ret.height))
+  return ret
+
+public lostanza defn in-stroke? (self:ref<Context>, x:ref<Double>, y:ref<Double>) -> ref<Int> :
+  val ret = call-c cairo_in_stroke(self.value, x.value, y.value)
+  return new Int{ret}
+
+public lostanza defn copy-page (self:ref<Context>) -> ref<False> :
+  call-c cairo_copy_page(self.value)
+  return false
+
+public lostanza defn show-page (self:ref<Context>) -> ref<False> :
+  call-c cairo_show_page(self.value)
+  return false
+
+; get/set_user_data not implemented

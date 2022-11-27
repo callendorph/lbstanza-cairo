@@ -1,0 +1,39 @@
+packages cairo/* defined-in "src/"
+packages cairo/tests/* defined-in "tests/"
+
+; @TODO - use 'pkg-config cairo --libs' ?
+package cairo/Context requires:
+  ccflags :
+    "-lcairo"
+
+
+build main :
+  inputs:
+    cairo/Colors
+    cairo/Context
+    cairo/Device
+    cairo/Errors
+    cairo/Geometry
+    cairo/ImageSurface
+    cairo/Matrix
+    cairo/Paths
+    cairo/Patterns
+    cairo/PNG
+    cairo/RasterSrc
+    cairo/RecordingSurface
+    cairo/Regions
+    cairo/Surface
+    cairo/Text
+    cairo/Transformations
+    cairo/VersionInfo
+  pkg: "pkgs"
+
+build-test cairo-tests :
+  inputs:
+    cairo/tests/ImageSurface
+    cairo/tests/Context
+    cairo/tests/Geometry
+    cairo/tests/Matrix
+    cairo/tests/Colors
+  pkg: "pkgs"
+  o: "cairo-tests"
