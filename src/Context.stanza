@@ -4,6 +4,7 @@ defpackage cairo/Context :
   import cairo/Patterns
   import cairo/Geometry
   import cairo/Errors
+  import cairo/Colors
 
 extern cairo_create : (ptr<?>) -> ptr<?> ; cairo_t *
 extern cairo_reference : (ptr<?>) -> ptr<?> ; cairo_t *
@@ -197,8 +198,16 @@ public lostanza defn set-source (self:ref<Context>, red:ref<Double>, green:ref<D
   call-c cairo_set_source_rgb(self.value, red.value, green.value, blue.value)
   return false
 
+public lostanza defn set-source (self:ref<Context>, c:ref<RGB>) -> ref<False> :
+  call-c cairo_set_source_rgb(self.value, c.r, c.g, c.b)
+  return false
+
 public lostanza defn set-source (self:ref<Context>, red:ref<Double>, green:ref<Double>, blue:ref<Double>, alpha:ref<Double>) -> ref<False> :
   call-c cairo_set_source_rgba(self.value, red.value, green.value, blue.value, alpha.value)
+  return false
+
+public lostanza defn set-source (self:ref<Context>, c:ref<ARGB>) -> ref<False> :
+  call-c cairo_set_source_rgba(self.value, c.r, c.g, c.b, c.a)
   return false
 
 public lostanza defn set-source (self:ref<Context>, src:ref<Pattern>) -> ref<False> :
