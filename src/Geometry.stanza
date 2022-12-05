@@ -15,11 +15,23 @@ public lostanza defn Point2D () -> ref<Point2D> :
 public lostanza defn Point2D (x:ref<Double>, y:ref<Double>) -> ref<Point2D> :
   return new Point2D{x.value, y.value}
 
+public lostanza defn Point2D (x:ref<Int>, y:ref<Int>) -> ref<Point2D> :
+  return new Point2D{to-double(x).value, to-double(y).value}
+
 public lostanza defn get-x (self:ref<Point2D>) -> ref<Double> :
   return new Double{self.x}
 
 public lostanza defn get-y (self:ref<Point2D>) -> ref<Double> :
   return new Double{self.y}
+
+public lostanza defn plus (self:ref<Point2D>, offset:ref<Point2D>) -> ref<Point2D> :
+  return new Point2D{self.x + offset.x, self.y + offset.y}
+
+public lostanza defn times (self:ref<Point2D>, scale:ref<Double>) -> ref<Point2D> :
+  return new Point2D{self.x * scale.value, self.y * scale.value}
+
+public lostanza defn times (scale:ref<Double>, self:ref<Point2D>) -> ref<Point2D> :
+  return times(self, scale)
 
 defmethod print (o:OutputStream, p:Point2D) :
   val x = get-x(p)
@@ -76,6 +88,11 @@ public lostanza defn Rectangle (x:ref<Double>, y:ref<Double>, width:ref<Double>,
     throw(InvalidArgument(String("Width/height must be greater than or equal to zero")))
   return new Rectangle{x.value, y.value, width.value, height.value}
 
+public lostanza defn Rectangle (x:ref<Int>, y:ref<Int>, width:ref<Int>, height:ref<Int>) -> ref<Rectangle> :
+  if width.value < 0 or height.value < 0 :
+    throw(InvalidArgument(String("Width/height must be greater than or equal to zero")))
+  return new Rectangle{to-double(x).value, to-double(y).value, to-double(width).value, to-double(height).value}
+
 public lostanza defn get-x (self:ref<Rectangle>) -> ref<Double> :
   return new Double{self.x}
 
@@ -87,6 +104,18 @@ public lostanza defn get-width (self:ref<Rectangle>) -> ref<Double> :
 
 public lostanza defn get-height (self:ref<Rectangle>) -> ref<Double> :
   return new Double{self.height}
+
+public lostanza defn plus (self:ref<Rectangle>, offset:ref<Point2D>) -> ref<Rectangle> :
+  return new Rectangle{self.x + offset.x, self.y + offset.y, self.width, self.height}
+
+public lostanza defn plus (offset:ref<Point2D>, self:ref<Rectangle>) -> ref<Rectangle> :
+  return plus(self, offset)
+
+public lostanza defn times (self:ref<Rectangle>, scale:ref<Double>) -> ref<Rectangle> :
+  return new Rectangle{self.x, self.y, scale.value * self.width, scale.value * self.height}
+
+public lostanza defn times (scale:ref<Double>, self:ref<Rectangle>) -> ref<Rectangle> :
+  return times(self, scale)
 
 defmethod print (o:OutputStream, p:Rectangle) :
   val x = get-x(p)
@@ -124,6 +153,9 @@ public lostanza defn get-center (self:ref<Circle>) -> ref<Point2D> :
 
 public lostanza defn get-radius (self:ref<Circle>) -> ref<Double> :
   return new Double{self.r}
+
+public lostanza defn plus (self:ref<Circle>, offset:ref<Point2D>) -> ref<Circle> :
+  return new Circle{self.x + offset.x, self.y + offset.y, self.r}
 
 defmethod print (o:OutputStream, c:Circle) :
   val x = get-x(c)
