@@ -26,6 +26,7 @@ build main :
     cairo/Text
     cairo/Transformations
     cairo/VersionInfo
+  flags: COMPILE-STATIC
   pkg: "pkgs"
 
 build-test cairo-tests :
@@ -35,5 +36,6 @@ build-test cairo-tests :
     cairo/tests/Geometry
     cairo/tests/Matrix
     cairo/tests/Colors
-  pkg: "pkgs"
+  flags: COMPILE-STATIC
+  pkg: "test-pkgs"
   o: "cairo-tests"

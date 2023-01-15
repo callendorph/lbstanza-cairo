@@ -4,9 +4,10 @@ defpackage cairo/tests/ImageSurface :
   import cairo/Context
   import cairo/ImageSurface
   import cairo/Errors
+  import cairo/Enums/cairo_format_t
+  import cairo/Enums/cairo_status_t
 
 deftest(img-surface) cairo-img-surface :
-
   val img = ImageSurface(CAIRO_FORMAT_RGB24, 100, 50)
   val sf = to-surface(img)
   val ctx = Context(sf)
