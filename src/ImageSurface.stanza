@@ -1,27 +1,13 @@
 defpackage cairo/ImageSurface :
   import core
+  import cairo/Wrapper
   import cairo/Surface
   import cairo/Errors
   import cairo/Colors
+  import cairo/Enums/cairo_format_t
+  import cairo/Enums/cairo_surface_type_t
+  import cairo/Enums/cairo_status_t
 
-extern cairo_image_surface_create : (int,int,int) -> ptr<?>
-extern cairo_format_stride_for_width : (int,int) -> int
-extern cairo_image_surface_create_for_data : (ptr<byte>,int,int,int,int) -> ptr<?>
-extern cairo_image_surface_get_data : (ptr<?>) -> ptr<byte>
-extern cairo_image_surface_get_format : (ptr<?>) -> int
-extern cairo_image_surface_get_width : (ptr<?>) -> int
-extern cairo_image_surface_get_height : (ptr<?>) -> int
-extern cairo_image_surface_get_stride : (ptr<?>) -> int
-
-extern cairo_surface_reference : (ptr<?>) -> ptr<?>
-
-public val CAIRO_FORMAT_INVALID:Int = -1
-public val CAIRO_FORMAT_ARGB32:Int = 0
-public val CAIRO_FORMAT_RGB24:Int = 1
-public val CAIRO_FORMAT_A8:Int = 2
-public val CAIRO_FORMAT_A1:Int = 3
-public val CAIRO_FORMAT_RGB16_565:Int = 4
-public val CAIRO_FORMAT_RGB30:Int = 5
 
 public lostanza deftype ImageSurface <: Unique :
   value : ptr<?>
@@ -33,12 +19,12 @@ public lostanza defn ImageSurface (p:ptr<?>) -> ref<ImageSurface> :
   add-finalizer(new SurfaceFinalizer{p}, ret)
   return ret
 
-public lostanza defn ImageSurface (format:ref<Int>, width:ref<Int>, height:ref<Int>) -> ref<ImageSurface> :
-  val ret = call-c cairo_image_surface_create(format.value, width.value, height.value)
+public lostanza defn ImageSurface (format:ref<cairo_format_t>, width:ref<Int>, height:ref<Int>) -> ref<ImageSurface> :
+  val ret = w_cairo_image_surface_create(to-int(format).value, width.value, height.value)
   return ImageSurface(ret)
 
-public lostanza defn ImageSurface (data:ptr<?>, format:int, width:int, height:int, stride:int) -> ref<ImageSurface> :
-  val ret = call-c cairo_image_surface_create_for_data(data, format, width, height, stride)
+public lostanza defn ImageSurface (data:ptr<?>, format:ref<cairo_format_t>, width:int, height:int, stride:int) -> ref<ImageSurface> :
+  val ret = w_cairo_image_surface_create_for_data(data, to-int(format).value, width, height, stride)
   return ImageSurface(ret)
 
 public lostanza defn to-surface (self:ref<ImageSurface>) -> ref<Surface> :
@@ -51,27 +37,27 @@ public lostanza defn to-image-surface (self:ref<Surface>) -> ref<ImageSurface> :
   return get-image-surface-ref(self.value)
 
 public lostanza defn get-image-surface-ref (p:ptr<?>) -> ref<ImageSurface> :
-  val ret = call-c cairo_surface_reference(p)
+  val ret = w_cairo_surface_reference(p)
   return ImageSurface(ret)
 
 public lostanza defn get-data (self:ref<ImageSurface>) -> ptr<byte> :
-  val ret = call-c cairo_image_surface_get_data(self.value)
+  val ret = w_cairo_image_surface_get_data(self.value)
   return ret
 
-public lostanza defn get-format (self:ref<ImageSurface>) -> ref<Int> :
-  val ret = call-c cairo_image_surface_get_format(self.value)
-  return new Int{ret}
+public lostanza defn get-format (self:ref<ImageSurface>) -> ref<cairo_format_t> :
+  val ret = w_cairo_image_surface_get_format(self.value)
+  return cairo_format_t(ret)
 
 public lostanza defn get-width (self:ref<ImageSurface>) -> ref<Int> :
-  val ret = call-c cairo_image_surface_get_width(self.value)
+  val ret = w_cairo_image_surface_get_width(self.value)
   return new Int{ret}
 
 public lostanza defn get-height (self:ref<ImageSurface>) -> ref<Int> :
-  val ret = call-c cairo_image_surface_get_height(self.value)
+  val ret = w_cairo_image_surface_get_height(self.value)
   return new Int{ret}
 
 public lostanza defn get-stride (self:ref<ImageSurface>) -> ref<Int> :
-  val ret = call-c cairo_image_surface_get_stride(self.value)
+  val ret = w_cairo_image_surface_get_stride(self.value)
   return new Int{ret}
 
 public lostanza defn get-rgb (self:ref<ImageSurface>, x:ref<Int>, y:ref<Int>) -> ref<RGB> :

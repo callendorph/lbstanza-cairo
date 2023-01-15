@@ -1,63 +1,24 @@
 
 defpackage cairo/Errors :
   import core
+  import cairo/Wrapper
+  import cairo/Enums/cairo_status_t
 
-; cairo_status_t
 
-public val CAIRO_STATUS_SUCCESS:Int = 0
-public val CAIRO_STATUS_NO_MEMORY:Int = 1
-public val CAIRO_STATUS_INVALID_RESTORE:Int = 2
-public val CAIRO_STATUS_INVALID_POP_GROUP:Int = 3
-public val CAIRO_STATUS_NO_CURRENT_POINT:Int = 4
-public val CAIRO_STATUS_INVALID_MATRIX:Int = 5
-public val CAIRO_STATUS_INVALID_STATUS:Int = 6
-public val CAIRO_STATUS_NULL_POINTER:Int = 7
-public val CAIRO_STATUS_INVALID_STRING:Int = 8
-public val CAIRO_STATUS_INVALID_PATH_DATA:Int = 9
-public val CAIRO_STATUS_READ_ERROR:Int = 10
-public val CAIRO_STATUS_WRITE_ERROR:Int = 11
-public val CAIRO_STATUS_SURFACE_FINISHED:Int = 12
-public val CAIRO_STATUS_SURFACE_TYPE_MISMATCH:Int = 13
-public val CAIRO_STATUS_PATTERN_TYPE_MISMATCH:Int = 14
-public val CAIRO_STATUS_INVALID_CONTENT:Int = 15
-public val CAIRO_STATUS_INVALID_FORMAT:Int = 16
-public val CAIRO_STATUS_INVALID_VISUAL:Int = 17
-public val CAIRO_STATUS_FILE_NOT_FOUND:Int = 18
-public val CAIRO_STATUS_INVALID_DASH:Int = 19
-public val CAIRO_STATUS_INVALID_DSC_COMMENT:Int = 20
-public val CAIRO_STATUS_INVALID_INDEX:Int = 21
-public val CAIRO_STATUS_CLIP_NOT_REPRESENTABLE:Int = 22
-public val CAIRO_STATUS_TEMP_FILE_ERROR:Int = 23
-public val CAIRO_STATUS_INVALID_STRIDE:Int = 24
-public val CAIRO_STATUS_FONT_TYPE_MISMATCH:Int = 25
-public val CAIRO_STATUS_USER_FONT_IMMUTABLE:Int = 26
-public val CAIRO_STATUS_USER_FONT_ERROR:Int = 27
-public val CAIRO_STATUS_NEGATIVE_COUNT:Int = 28
-public val CAIRO_STATUS_INVALID_CLUSTERS:Int = 29
-public val CAIRO_STATUS_INVALID_SLANT:Int = 30
-public val CAIRO_STATUS_INVALID_WEIGHT:Int = 31
-public val CAIRO_STATUS_INVALID_SIZE:Int = 32
-public val CAIRO_STATUS_USER_FONT_NOT_IMPLEMENTED:Int = 33
-public val CAIRO_STATUS_DEVICE_TYPE_MISMATCH:Int = 34
-public val CAIRO_STATUS_DEVICE_ERROR:Int = 35
-public val CAIRO_STATUS_INVALID_MESH_CONSTRUCTION:Int = 36
-public val CAIRO_STATUS_DEVICE_FINISHED:Int = 37
-public val CAIRO_STATUS_JBIG2_GLOBAL_MISSING:Int = 38
-public val CAIRO_STATUS_LAST_STATUS:Int = 39
-
-extern cairo_status_to_string : (int) -> ptr<byte>
-extern cairo_debug_reset_static_data : () -> int  ;  void
+public lostanza defn cairo-status-to-string (status:ref<cairo_status_t>) -> ref<String> :
+  val ret = w_cairo_status_to_string(to-int(status).value)
+  return String(ret)
 
 public lostanza defn cairo-status-to-string (status:ref<Int>) -> ref<String> :
-  val ret = call-c cairo_status_to_string(status.value)
+  val ret = w_cairo_status_to_string(status.value)
   return String(ret)
 
 public lostanza defn cairo-debug-reset-static-data () -> ref<False> :
-  call-c cairo_debug_reset_static_data()
+  w_cairo_debug_reset_static_data()
   return false
 
 public defstruct CairoException <: Exception :
-  code:Int
+  code:cairo_status_t
 
 defmethod print (o:OutputStream, e:CairoException) :
   val c = code(e)
@@ -71,12 +32,9 @@ defmethod print (o:OutputStream, e:InvalidArgument) :
   print(o, "Invalid Argument: %_" % [m])
 
 public lostanza defn check-status (s:int) -> ref<False>:
-  if s != CAIRO_STATUS_SUCCESS.value:
-    throw(CairoException(new Int{s}))
+  check-status(cairo_status_t(s))
   return false
 
-public defn check-status (s:Int) :
-  ; Convert the return status code from the `_get_status` calls to
-  ;  an exception.
+public defn check-status (s:cairo_status_t) :
   if s != CAIRO_STATUS_SUCCESS:
     throw(CairoException(s))

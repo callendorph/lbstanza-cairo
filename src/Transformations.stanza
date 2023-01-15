@@ -1,44 +1,33 @@
 defpackage cairo/Transformations :
   import core
+  import cairo/Wrapper
   import cairo/Context
   import cairo/Matrix
 
-extern cairo_translate : (ptr<?>,double,double) -> int  ;  void
-extern cairo_scale : (ptr<?>,double,double) -> int  ;  void
-extern cairo_rotate : (ptr<?>,double) -> int  ;  void
-extern cairo_transform : (ptr<?>,ptr<?>) -> int  ;  void
-extern cairo_set_matrix : (ptr<?>,ptr<?>) -> int  ;  void
-extern cairo_get_matrix : (ptr<?>,ptr<?>) -> int  ;  void
-extern cairo_identity_matrix : (ptr<?>) -> int  ;  void
-extern cairo_user_to_device : (ptr<?>,ptr<double>,ptr<double>) -> int  ;  void
-extern cairo_user_to_device_distance : (ptr<?>,ptr<double>,ptr<double>) -> int  ;  void
-extern cairo_device_to_user : (ptr<?>,ptr<double>,ptr<double>) -> int  ;  void
-extern cairo_device_to_user_distance : (ptr<?>,ptr<double>,ptr<double>) -> int  ;  void
-
 
 public lostanza defn translate (self:ref<Context>, x:ref<Double>, y:ref<Double>) -> ref<False> :
-  call-c cairo_translate(self.value, x.value, y.value)
+  w_cairo_translate(self.value, x.value, y.value)
   return false
 
 public lostanza defn rotate (self:ref<Context>, angle:ref<Double>) -> ref<False> :
-  call-c cairo_rotate(self.value, angle.value)
+  w_cairo_rotate(self.value, angle.value)
   return false
 
 public lostanza defn transform (self:ref<Context>, m:ref<Matrix2D>) -> ref<False> :
-  call-c cairo_transform(self.value, addr!(m.xx))
+  w_cairo_transform(self.value, addr!(m.xx))
   return false
 
 public lostanza defn set-matrix (self:ref<Context>, m:ref<Matrix2D>) -> ref<False> :
-  call-c cairo_set_matrix(self.value, addr!(m.xx))
+  w_cairo_set_matrix(self.value, addr!(m.xx))
   return false
 
 public lostanza defn get-matrix (self:ref<Context>) -> ref<Matrix2D> :
   val ret = Identity()
-  call-c cairo_get_matrix(self.value, addr!(ret.xx))
+  w_cairo_get_matrix(self.value, addr!(ret.xx))
   return ret
 
 public lostanza defn set-identity-matrix (self:ref<Context>) -> ref<False> :
-  call-c cairo_identity_matrix(self.value)
+  w_cairo_identity_matrix(self.value)
   return false
 
 ; @TOOD user to device and device to user with Point objects.

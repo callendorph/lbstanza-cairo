@@ -1,18 +1,7 @@
 defpackage cairo/Matrix :
   import core
+  import cairo/Wrapper
 
-extern cairo_matrix_init : (ptr<?>,double,double,double,double,double,double) -> int  ;  void
-extern cairo_matrix_init_identity : (ptr<?>) -> int  ;  void
-extern cairo_matrix_init_translate : (ptr<?>,double,double) -> int  ;  void
-extern cairo_matrix_init_scale : (ptr<?>,double,double) -> int  ;  void
-extern cairo_matrix_init_rotate : (ptr<?>,double) -> int  ;  void
-extern cairo_matrix_translate : (ptr<?>,double,double) -> int  ;  void
-extern cairo_matrix_scale : (ptr<?>,double,double) -> int  ;  void
-extern cairo_matrix_rotate : (ptr<?>,double) -> int  ;  void
-extern cairo_matrix_invert : (ptr<?>) -> int
-extern cairo_matrix_multiply : (ptr<?>,ptr<?>,ptr<?>) -> int  ;  void
-extern cairo_matrix_transform_distance : (ptr<?>,ptr<double>,ptr<double>) -> int  ;  void
-extern cairo_matrix_transform_point : (ptr<?>,ptr<double>,ptr<double>) -> int  ;  void
 
 public lostanza deftype Matrix2D :
   xx:double
@@ -28,44 +17,44 @@ public lostanza defn Matrix2D () -> ref<Matrix2D> :
 public lostanza defn Translate (x:ref<Double>, y:ref<Double>) -> ref<Matrix2D> :
   ; Translation
   val ret = Matrix2D()
-  call-c cairo_matrix_init_translate(addr!(ret.xx), x.value, y.value)
+  w_cairo_matrix_init_translate(addr!(ret.xx), x.value, y.value)
   return ret
 
 public lostanza defn Scale (x:ref<Double>, y:ref<Double>) -> ref<Matrix2D> :
   val ret = Matrix2D()
-  call-c cairo_matrix_init_scale(addr!(ret.xx), x.value, y.value)
+  w_cairo_matrix_init_scale(addr!(ret.xx), x.value, y.value)
   return ret
 
 public lostanza defn Rotate (r:ref<Double>) -> ref<Matrix2D> :
   ; Rotation Matrix - r = rotation in radians
   val ret = Matrix2D()
-  call-c cairo_matrix_init_rotate(addr!(ret.xx), r.value)
+  w_cairo_matrix_init_rotate(addr!(ret.xx), r.value)
   return ret
 
 public lostanza defn Identity () -> ref<Matrix2D> :
   val ret = Matrix2D()
-  call-c cairo_matrix_init_identity(addr!(ret.xx))
+  w_cairo_matrix_init_identity(addr!(ret.xx))
   return ret
 
 public lostanza defn translate (self:ref<Matrix2D>, x:ref<Double>, y:ref<Double>) -> ref<False> :
-  call-c cairo_matrix_translate(addr!(self.xx), x.value, y.value)
+  w_cairo_matrix_translate(addr!(self.xx), x.value, y.value)
   return false
 
 public lostanza defn scale (self:ref<Matrix2D>, x:ref<Double>, y:ref<Double>) -> ref<False> :
-  call-c cairo_matrix_scale(addr!(self.xx), x.value, y.value)
+  w_cairo_matrix_scale(addr!(self.xx), x.value, y.value)
   return false
 
 public lostanza defn rotate (self:ref<Matrix2D>, r:ref<Double>) -> ref<False> :
-  call-c cairo_matrix_rotate(addr!(self.xx), r.value)
+  w_cairo_matrix_rotate(addr!(self.xx), r.value)
   return false
 
 public lostanza defn invert (self:ref<Matrix2D>) -> ref<Int> :
-  val ret = call-c cairo_matrix_invert(addr!(self.xx))
+  val ret = w_cairo_matrix_invert(addr!(self.xx))
   return new Int{ret}
 
 public lostanza defn times (a:ref<Matrix2D>, b:ref<Matrix2D>) -> ref<Matrix2D> :
   val ret = Matrix2D()
-  call-c cairo_matrix_multiply(addr!(ret.xx), addr!(a.xx), addr!(b.xx))
+  w_cairo_matrix_multiply(addr!(ret.xx), addr!(a.xx), addr!(b.xx))
   return ret
 
 ;@ TODO

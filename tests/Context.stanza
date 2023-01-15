@@ -9,6 +9,8 @@ defpackage cairo/tests/Context :
   import cairo/Geometry
   import cairo/PNG
   import cairo/Colors
+  import cairo/Enums/cairo_format_t
+  import cairo/Enums/cairo_status_t
 
 deftest(context) cairo-context-basic :
 

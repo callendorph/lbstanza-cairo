@@ -1,35 +1,15 @@
 defpackage cairo/Paths :
   import core
+  import cairo/Wrapper
   import cairo/Context
   import cairo/Geometry
 
-extern cairo_copy_path  : (ptr<?>) -> ptr<?> ;  cairo_path_t
-extern cairo_copy_path_flat  : (ptr<?>) -> ptr<?> ;  cairo_path_t
-extern cairo_path_destroy  : (ptr<?>) -> int ; void
-extern cairo_append_path  : (ptr<?>, ptr<?>) -> int ; void
-extern cairo_has_current_point  : (ptr<?>) -> int ; cairo_bool_t
-extern cairo_get_current_point  : (ptr<?>, ptr<?>, ptr<?>) -> int ; void
-extern cairo_new_path  : (ptr<?>) -> int ; void
-extern cairo_new_sub_path  : (ptr<?>) -> int ; void
-extern cairo_close_path  : (ptr<?>) -> int ; void
-extern cairo_arc  : (ptr<?>, double, double, double, double, double) -> int ; void
-extern cairo_arc_negative  : (ptr<?>, double, double, double, double, double) -> int ; void
-extern cairo_curve_to  : (ptr<?>, double, double, double, double, double, double) -> int ; void
-extern cairo_line_to  : (ptr<?>, double, double) -> int ; void
-extern cairo_move_to  : (ptr<?>, double, double) -> int ; void
-extern cairo_rectangle  : (ptr<?>, double, double, double, double) -> int ; void
-extern cairo_glyph_path  : (ptr<?>, ptr<?>, int) -> int ; void
-extern cairo_text_path  : (ptr<?>, ptr<?>) -> int ; void
-extern cairo_rel_curve_to  : (ptr<?>, double, double, double, double, double, double) -> int ; void
-extern cairo_rel_line_to  : (ptr<?>, double, double) -> int ; void
-extern cairo_rel_move_to  : (ptr<?>, double, double) -> int ; void
-extern cairo_path_extents  : (ptr<?>, ptr<?>,ptr<?>,ptr<?>,ptr<?>) -> int ; void
 
 lostanza deftype PathFinalizer <: Finalizer :
   value:ptr<?>
 
 lostanza defmethod run (self:ref<PathFinalizer>) -> ref<False> :
-  call-c cairo_path_destroy(self.value)
+  w_cairo_path_destroy(self.value)
   return false
 
 public lostanza deftype Path <: Unique :
@@ -43,121 +23,121 @@ public lostanza defn Path (p:ptr<?>) -> ref<Path> :
   return ret
 
 public lostanza defn copy-path (self:ref<Context>) -> ref<Path> :
-  val ret = call-c cairo_copy_path(self.value)
+  val ret = w_cairo_copy_path(self.value)
   return Path(ret)
 
 public lostanza defn copy-path-flat (self:ref<Context>) -> ref<Path> :
-  val ret = call-c cairo_copy_path_flat(self.value)
+  val ret = w_cairo_copy_path_flat(self.value)
   return Path(ret)
 
 public lostanza defn append-path (self:ref<Context>, p:ref<Path>) -> ref<False> :
-  val ret = call-c cairo_append_path(self.value, p.value)
+  val ret = w_cairo_append_path(self.value, p.value)
   return false
 
 public lostanza defn has-current-point (self:ref<Context>) -> ref<Int> :
-  val ret = call-c cairo_has_current_point(self.value)
+  val ret = w_cairo_has_current_point(self.value)
   return new Int{ret}
 
 public lostanza defn get-current-point (self:ref<Context>) -> ref<Point2D> :
   val ret = Point2D()
-  call-c cairo_get_current_point(self.value, addr!(ret.x), addr!(ret.y))
+  w_cairo_get_current_point(self.value, addr!(ret.x), addr!(ret.y))
   return ret
 
 public lostanza defn new-path (self:ref<Context>) -> ref<False> :
-  call-c cairo_new_path(self.value)
+  w_cairo_new_path(self.value)
   return false
 
 public lostanza defn new-sub-path (self:ref<Context>) -> ref<False> :
-  call-c cairo_new_sub_path(self.value)
+  w_cairo_new_sub_path(self.value)
   return false
 
 public lostanza defn close-path (self:ref<Context>) -> ref<False> :
-  call-c cairo_close_path(self.value)
+  w_cairo_close_path(self.value)
   return false
 
 public lostanza defn arc (self:ref<Context>, xc:ref<Double>, yc:ref<Double>, r:ref<Double>, angle1:ref<Double>, angle2:ref<Double>) -> ref<False> :
-  call-c cairo_arc(self.value, xc.value, yc.value, r.value, angle1.value, angle2.value)
+  w_cairo_arc(self.value, xc.value, yc.value, r.value, angle1.value, angle2.value)
   return false
 
 public lostanza defn arc (self:ref<Context>, c:ref<Point2D>, r:ref<Double>, angle1:ref<Double>, angle2:ref<Double>) -> ref<False> :
-  call-c cairo_arc(self.value, c.x, c.y, r.value, angle1.value, angle2.value)
+  w_cairo_arc(self.value, c.x, c.y, r.value, angle1.value, angle2.value)
   return false
 
 public lostanza defn arc-negative (self:ref<Context>, xc:ref<Double>, yc:ref<Double>, r:ref<Double>, angle1:ref<Double>, angle2:ref<Double>) -> ref<False> :
-  call-c cairo_arc_negative(self.value, xc.value, yc.value, r.value, angle1.value, angle2.value)
+  w_cairo_arc_negative(self.value, xc.value, yc.value, r.value, angle1.value, angle2.value)
   return false
 
 public lostanza defn arc-negative (self:ref<Context>, c:ref<Point2D>, r:ref<Double>, angle1:ref<Double>, angle2:ref<Double>) -> ref<False> :
-  call-c cairo_arc_negative(self.value, c.x, c.y, r.value, angle1.value, angle2.value)
+  w_cairo_arc_negative(self.value, c.x, c.y, r.value, angle1.value, angle2.value)
   return false
 
 public lostanza defn curve-to (self:ref<Context>, x1:ref<Double>, y1:ref<Double>, x2:ref<Double>, y2:ref<Double>, x3:ref<Double>, y3:ref<Double>) -> ref<False> :
-  call-c cairo_curve_to(self.value, x1.value, y1.value, x2.value, y2.value, x3.value, y3.value)
+  w_cairo_curve_to(self.value, x1.value, y1.value, x2.value, y2.value, x3.value, y3.value)
   return false
 
 public lostanza defn curve-to (self:ref<Context>, p1:ref<Point2D>, p2:ref<Point2D>, p3:ref<Point2D>) -> ref<False> :
-  call-c cairo_curve_to(self.value, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y)
+  w_cairo_curve_to(self.value, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y)
   return false
 
 public lostanza defn line-to (self:ref<Context>, x1:ref<Double>, y1:ref<Double>) -> ref<False> :
-  call-c cairo_line_to(self.value, x1.value, y1.value)
+  w_cairo_line_to(self.value, x1.value, y1.value)
   return false
 
 public lostanza defn line-to (self:ref<Context>, p:ref<Point2D>) -> ref<False> :
-  call-c cairo_line_to(self.value, p.x, p.y)
+  w_cairo_line_to(self.value, p.x, p.y)
   return false
 
 public lostanza defn move-to (self:ref<Context>, x1:ref<Double>, y1:ref<Double>) -> ref<False> :
-  call-c cairo_move_to(self.value, x1.value, y1.value)
+  w_cairo_move_to(self.value, x1.value, y1.value)
   return false
 
 public lostanza defn move-to (self:ref<Context>, p:ref<Point2D>) -> ref<False> :
-  call-c cairo_move_to(self.value, p.x, p.y)
+  w_cairo_move_to(self.value, p.x, p.y)
   return false
 
 public lostanza defn rectangle (self:ref<Context>, x1:ref<Double>, y1:ref<Double>, width:ref<Double>, height:ref<Double>) -> ref<False> :
-  call-c cairo_rectangle(self.value, x1.value, y1.value, width.value, height.value)
+  w_cairo_rectangle(self.value, x1.value, y1.value, width.value, height.value)
   return false
 
 public lostanza defn rectangle (self:ref<Context>, p:ref<Point2D>, width:ref<Double>, height:ref<Double>) -> ref<False> :
-  call-c cairo_rectangle(self.value, p.x, p.y, width.value, height.value)
+  w_cairo_rectangle(self.value, p.x, p.y, width.value, height.value)
   return false
 
 public lostanza defn rectangle (self:ref<Context>, r:ref<Rectangle>) -> ref<False> :
-  call-c cairo_rectangle(self.value, r.x, r.y, r.width, r.height)
+  w_cairo_rectangle(self.value, r.x, r.y, r.width, r.height)
   return false
 
 public lostanza defn rel-curve-to (self:ref<Context>, x1:ref<Double>, y1:ref<Double>, x2:ref<Double>, y2:ref<Double>, x3:ref<Double>, y3:ref<Double>) -> ref<False> :
-  call-c cairo_rel_curve_to(self.value, x1.value, y1.value, x2.value, y2.value, x3.value, y3.value)
+  w_cairo_rel_curve_to(self.value, x1.value, y1.value, x2.value, y2.value, x3.value, y3.value)
   return false
 
 public lostanza defn rel-curve-to (self:ref<Context>, p1:ref<Point2D>, p2:ref<Point2D>, p3:ref<Point2D>) -> ref<False> :
-  call-c cairo_rel_curve_to(self.value, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y)
+  w_cairo_rel_curve_to(self.value, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y)
   return false
 
 public lostanza defn rel-line-to (self:ref<Context>, x1:ref<Double>, y1:ref<Double>) -> ref<False> :
-  call-c cairo_rel_line_to(self.value, x1.value, y1.value)
+  w_cairo_rel_line_to(self.value, x1.value, y1.value)
   return false
 
 public lostanza defn rel-line-to (self:ref<Context>, p:ref<Point2D>) -> ref<False> :
-  call-c cairo_rel_line_to(self.value, p.x, p.y)
+  w_cairo_rel_line_to(self.value, p.x, p.y)
   return false
 
 public lostanza defn rel-move-to (self:ref<Context>, x1:ref<Double>, y1:ref<Double>) -> ref<False> :
-  call-c cairo_rel_move_to(self.value, x1.value, y1.value)
+  w_cairo_rel_move_to(self.value, x1.value, y1.value)
   return false
 
 public lostanza defn rel-move-to (self:ref<Context>, p:ref<Point2D>) -> ref<False> :
-  call-c cairo_rel_move_to(self.value, p.x, p.y)
+  w_cairo_rel_move_to(self.value, p.x, p.y)
   return false
 
 ; @TODO cairo_glyph_path
 
 public lostanza defn text-path (self:ref<Context>, utf8:ref<String>) -> ref<False> :
-  call-c cairo_text_path(self.value, addr!(utf8.chars))
+  w_cairo_text_path(self.value, addr!(utf8.chars))
   return false
 
 public lostanza defn path-extents (self:ref<Context>) -> ref<Rectangle> :
   val ret = Rectangle()
-  call-c cairo_path_extents(self.value, addr!(ret.x), addr!(ret.y), addr!(ret.width), addr!(ret.height))
+  w_cairo_path_extents(self.value, addr!(ret.x), addr!(ret.y), addr!(ret.width), addr!(ret.height))
   return ret
