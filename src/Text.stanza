@@ -1,83 +1,457 @@
 defpackage cairo/Text :
   import core
+  import cairo/Wrapper
+  import cairo/Context
+  import cairo/Matrix
+  import cairo/Enums/cairo_font_slant_t
+  import cairo/Enums/cairo_font_weight_t
+  import cairo/Enums/cairo_font_type_t
+  import cairo/Enums/cairo_status_t
+  import cairo/Enums/cairo_hint_style_t
+  import cairo/Enums/cairo_hint_metrics_t
+  import cairo/Enums/cairo_subpixel_order_t
+  import cairo/Enums/cairo_antialias_t
+  import cairo/Enums/cairo_text_cluster_flags_t
 
-extern cairo_select_font_face : (ptr<?>,ptr<byte>,int,int) -> int  ;  void
-extern cairo_set_font_size : (ptr<?>,double) -> int  ;  void
-extern cairo_set_font_matrix : (ptr<?>,ptr<?>) -> int  ;  void
-extern cairo_get_font_matrix : (ptr<?>,ptr<?>) -> int  ;  void
-extern cairo_set_font_options : (ptr<?>,ptr<?>) -> int  ;  void
-extern cairo_get_font_options : (ptr<?>,ptr<?>) -> int  ;  void
-extern cairo_set_font_face : (ptr<?>,ptr<?>) -> int  ;  void
-extern cairo_get_font_face : (ptr<?>) -> ptr<?>
-extern cairo_set_scaled_font : (ptr<?>,ptr<?>) -> int  ;  void
-extern cairo_get_scaled_font : (ptr<?>) -> ptr<?>
-extern cairo_show_text : (ptr<?>,ptr<byte>) -> int  ;  void
-extern cairo_show_glyphs : (ptr<?>,ptr<?>,int) -> int  ;  void
-extern cairo_show_text_glyphs : (ptr<?>,ptr<byte>,int,ptr<?>,int,ptr<?>,int,int) -> int  ;  void
-extern cairo_text_path : (ptr<?>,ptr<byte>) -> int  ;  void
-extern cairo_glyph_path : (ptr<?>,ptr<?>,int) -> int  ;  void
-extern cairo_text_extents : (ptr<?>,ptr<byte>,ptr<?>) -> int  ;  void
-extern cairo_glyph_extents : (ptr<?>,ptr<?>,int,ptr<?>) -> int  ;  void
-extern cairo_font_extents : (ptr<?>,ptr<?>) -> int  ;  void
-extern cairo_font_face_reference : (ptr<?>) -> ptr<?>
-extern cairo_font_face_destroy : (ptr<?>) -> int  ;  void
-extern cairo_font_face_get_reference_count : (ptr<?>) -> int
-extern cairo_font_face_status : (ptr<?>) -> int
-extern cairo_font_face_get_type : (ptr<?>) -> int
-extern cairo_font_face_get_user_data : (ptr<?>,ptr<?>) -> ptr<?>
-extern cairo_font_face_set_user_data : (ptr<?>,ptr<?>,ptr<?>,int) -> int
-extern cairo_scaled_font_create : (ptr<?>,ptr<?>,ptr<?>,ptr<?>) -> ptr<?>
-extern cairo_scaled_font_reference : (ptr<?>) -> ptr<?>
-extern cairo_scaled_font_destroy : (ptr<?>) -> int  ;  void
-extern cairo_scaled_font_get_reference_count : (ptr<?>) -> int
-extern cairo_scaled_font_status : (ptr<?>) -> int
-extern cairo_scaled_font_get_type : (ptr<?>) -> int
-extern cairo_scaled_font_get_user_data : (ptr<?>,ptr<?>) -> ptr<?>
-extern cairo_scaled_font_set_user_data : (ptr<?>,ptr<?>,ptr<?>,int) -> int
-extern cairo_scaled_font_extents : (ptr<?>,ptr<?>) -> int  ;  void
-extern cairo_scaled_font_text_extents : (ptr<?>,ptr<byte>,ptr<?>) -> int  ;  void
-extern cairo_scaled_font_glyph_extents : (ptr<?>,ptr<?>,int,ptr<?>) -> int  ;  void
-extern cairo_scaled_font_text_to_glyphs : (ptr<?>,double,double,ptr<byte>,int,ptr<ptr<?>>,ptr<int>,ptr<ptr<?>>,ptr<int>,ptr<?>) -> int
-extern cairo_scaled_font_get_font_face : (ptr<?>) -> ptr<?>
-extern cairo_scaled_font_get_font_matrix : (ptr<?>,ptr<?>) -> int  ;  void
-extern cairo_scaled_font_get_ctm : (ptr<?>,ptr<?>) -> int  ;  void
-extern cairo_scaled_font_get_scale_matrix : (ptr<?>,ptr<?>) -> int  ;  void
-extern cairo_scaled_font_get_font_options : (ptr<?>,ptr<?>) -> int  ;  void
-extern cairo_toy_font_face_create : (ptr<byte>,int,int) -> ptr<?>
-extern cairo_toy_font_face_get_family : (ptr<?>) -> ptr<byte>
-extern cairo_toy_font_face_get_slant : (ptr<?>) -> int
-extern cairo_toy_font_face_get_weight : (ptr<?>) -> int
-extern cairo_user_font_face_create : () -> ptr<?>
-extern cairo_user_scaled_font_init_func_t : (ptr<?>,ptr<?>,ptr<?>) -> int
-extern cairo_user_scaled_font_render_glyph_func_t : (ptr<?>,long,ptr<?>,ptr<?>) -> int
-extern cairo_user_scaled_font_text_to_glyphs_func_t : (ptr<?>,ptr<byte>,int,ptr<ptr<?>>,ptr<int>,ptr<ptr<?>>,ptr<int>,ptr<?>) -> int
-extern cairo_user_scaled_font_unicode_to_glyph_func_t : (ptr<?>,long,ptr<long>) -> int
-extern cairo_user_font_face_set_init_func : (ptr<?>,int) -> int  ;  void
-extern cairo_user_font_face_set_render_glyph_func : (ptr<?>,int) -> int  ;  void
-extern cairo_user_font_face_set_text_to_glyphs_func : (ptr<?>,int) -> int  ;  void
-extern cairo_user_font_face_set_unicode_to_glyph_func : (ptr<?>,int) -> int  ;  void
-extern cairo_user_font_face_get_init_func : (ptr<?>) -> int
-extern cairo_user_font_face_get_render_glyph_func : (ptr<?>) -> int
-extern cairo_user_font_face_get_text_to_glyphs_func : (ptr<?>) -> int
-extern cairo_user_font_face_get_unicode_to_glyph_func : (ptr<?>) -> int
+public lostanza defn select-font-face (ctx:ref<Context>, family:ref<String>, slant:ref<cairo_font_slant_t>, weight:ref<cairo_font_weight_t>) -> ref<False> :
+  return w_cairo_select_font_face(ctx.value, addr!(family.chars), to-int(slant).value, to-int(weight).value)
 
-extern cairo_glyph_allocate : (int) -> ptr<?>
-extern cairo_glyph_free : (ptr<?>) -> int  ;  void
-extern cairo_text_cluster_allocate : (int) -> ptr<?>
-extern cairo_text_cluster_free : (ptr<?>) -> int  ;  void
+public lostanza defn set-font-size (ctx:ref<Context>, size:ref<Double>) -> ref<False> :
+  return w_cairo_set_font_size(ctx.value, size.value)
 
-extern cairo_font_options_create : () -> ptr<?>
-extern cairo_font_options_copy : (ptr<?>) -> ptr<?>
-extern cairo_font_options_destroy : (ptr<?>) -> int  ;  void
-extern cairo_font_options_status : (ptr<?>) -> int
-extern cairo_font_options_merge : (ptr<?>,ptr<?>) -> int  ;  void
-extern cairo_font_options_equal : (ptr<?>,ptr<?>) -> int
-extern cairo_font_options_hash : (ptr<?>) -> long
-extern cairo_font_options_set_antialias : (ptr<?>,int) -> int  ;  void
-extern cairo_font_options_get_antialias : (ptr<?>) -> int
-extern cairo_font_options_set_subpixel_order : (ptr<?>,int) -> int  ;  void
-extern cairo_font_options_get_subpixel_order : (ptr<?>) -> int
-extern cairo_font_options_set_hint_style : (ptr<?>,int) -> int  ;  void
-extern cairo_font_options_get_hint_style : (ptr<?>) -> int
-extern cairo_font_options_set_hint_metrics : (ptr<?>,int) -> int  ;  void
-extern cairo_font_options_get_hint_metrics : (ptr<?>) -> int
+public lostanza defn set-font-matrix (ctx:ref<Context>, m:ref<Matrix2D>) -> ref<False> :
+  return w_cairo_set_font_matrix(ctx.value, addr!(m.xx))
+
+public lostanza defn get-font-matrix (ctx:ref<Context>) -> ref<Matrix2D> :
+  val ret = Matrix2D()
+  w_cairo_get_font_matrix(ctx.value, addr!(ret.xx))
+  return ret
+
+public lostanza defn show-text (ctx:ref<Context>, utf8:ref<String>) -> ref<False> :
+  return w_cairo_show_text(ctx.value, addr!(utf8.chars))
+
+public lostanza defn text-path (ctx:ref<Context>, utf8:ref<String>) -> ref<False> :
+  return w_cairo_text_path(ctx.value, addr!(utf8.chars))
+
+public lostanza deftype TextExtents:
+  x_bearing:double
+  y_bearing:double
+  width:double
+  height:double
+  x_advance:double
+  y_advance:double
+
+public lostanza defn x_bearing (f:ref<TextExtents>) -> ref<Double> :
+  return new Double{f.x_bearing}
+
+public lostanza defn y_bearing (f:ref<TextExtents>) -> ref<Double> :
+  return new Double{f.y_bearing}
+
+public lostanza defn width (f:ref<TextExtents>) -> ref<Double> :
+  return new Double{f.width}
+
+public lostanza defn height (f:ref<TextExtents>) -> ref<Double> :
+  return new Double{f.height}
+
+public lostanza defn x_advance (f:ref<TextExtents>) -> ref<Double> :
+  return new Double{f.x_advance}
+
+public lostanza defn y_advance (f:ref<TextExtents>) -> ref<Double> :
+  return new Double{f.y_advance}
+
+
+public lostanza defn TextExtents (x_bearing:ref<Double>, y_bearing:ref<Double>, width:ref<Double>, height:ref<Double>, x_advance:ref<Double>, y_advance:ref<Double>) -> ref<TextExtents> :
+  return new TextExtents{
+    x_bearing.value, y_bearing.value, width.value, height.value, x_advance.value, y_advance.value
+  }
+
+public lostanza defn TextExtents () -> ref<TextExtents> :
+  return new TextExtents{0.0,0.0,0.0,0.0,0.0,0.0}
+
+public defmethod print (o:OutputStream, e:TextExtents) :
+  val funcs = [x_bearing, y_bearing, width, height, x_advance, y_advance]
+  val props = map({_(e)}, funcs)
+  print(o, "TextExtents{%,}" % [props])
+
+
+public lostanza defn text-extents (ctx:ref<Context>, utf8:ref<String>) -> ref<TextExtents> :
+  val ret = TextExtents()
+  w_cairo_text_extents(ctx.value, addr!(utf8.chars), addr!(ret.x_bearing))
+  return ret
+
+public lostanza deftype FontExtents:
+  ascent:double
+  descent:double
+  height:double
+  max_x_advance:double
+  max_y_advance:double
+
+public lostanza defn ascent (f:ref<FontExtents>) -> ref<Double> :
+  return new Double{f.ascent}
+
+public lostanza defn descent (f:ref<FontExtents>) -> ref<Double> :
+  return new Double{f.descent}
+
+public lostanza defn height (f:ref<FontExtents>) -> ref<Double> :
+  return new Double{f.height}
+
+public lostanza defn max_x_advance (f:ref<FontExtents>) -> ref<Double> :
+  return new Double{f.max_x_advance}
+
+public lostanza defn max_y_advance (f:ref<FontExtents>) -> ref<Double> :
+  return new Double{f.max_y_advance}
+
+public lostanza defn FontExtents (ascent:ref<Double>, descent:ref<Double>, height:ref<Double>, max_x_advance:ref<Double>, max_y_advance:ref<Double>) -> ref<FontExtents> :
+  return new FontExtents{
+    ascent.value, descent.value, height.value, max_x_advance.value, max_y_advance.value
+  }
+
+public lostanza defn FontExtents () -> ref<FontExtents>:
+  return new FontExtents{0.0,0.0,0.0,0.0,0.0}
+
+public lostanza defn font-extents (ctx:ref<Context>) -> ref<FontExtents> :
+  val ret = FontExtents()
+  w_cairo_font_extents(ctx.value, addr!(ret.ascent))
+  return ret
+
+public defmethod print (o:OutputStream, e:FontExtents) :
+  val funcs = [ascent, descent, height, max_x_advance, max_y_advance]
+  val props = map({_(e)}, funcs)
+  print(o, "FontExtents{%,}" % [props])
+
+public lostanza deftype TextCluster:
+  num_bytes:int
+  num_glyphs:int
+
+public lostanza defn TextCluster (numBytes:ref<Int>, numGlyphs:ref<Int>) -> ref<TextCluster>:
+  return new TextCluster{numBytes.value, numGlyphs.value}
+
+public lostanza defn num-bytes (t:ref<TextCluster>) -> ref<Int> :
+  return new Int{t.num_bytes}
+
+public lostanza defn num-glyphs (t:ref<TextCluster>) -> ref<Int> :
+  return new Int{t.num_glyphs}
+
+lostanza defn to-array (args:ref<Tuple<TextCluster>>) -> ptr<?> :
+  val cnt = length(args).value
+  val buf:ptr<ptr<?>> = call-c clib/malloc(cnt * sizeof(ptr<?>))
+  if buf == null :
+    fatal("ENOMEM")
+  for (var i:int = 0, i < cnt, i = i + 1 ) :
+    buf[i] = addr!(args.items[i].num_bytes)
+  return buf
+
+public lostanza deftype Glyph:
+  index:long
+  x:double
+  y:double
+
+public lostanza defn Glyph (index:ref<Long>, x:ref<Double>, y:ref<Double>) -> ref<Glyph> :
+  return new Glyph{index.value, x.value, y.value}
+
+public lostanza defn index (g:ref<Glyph>) -> ref<Long>:
+  return new Long{g.index}
+
+public lostanza defn x (g:ref<Glyph>) -> ref<Double>:
+  return new Double{g.x}
+
+public lostanza defn y (g:ref<Glyph>) -> ref<Double>:
+  return new Double{g.y}
+
+lostanza defn to-array (args:ref<Tuple<Glyph>>) -> ptr<?> :
+  val cnt = length(args).value
+  val buf:ptr<ptr<?>> = call-c clib/malloc(cnt * sizeof(ptr<?>))
+  if buf == null :
+    fatal("ENOMEM")
+  for (var i:int = 0, i < cnt, i = i + 1 ) :
+    buf[i] = addr!(args.items[i].index)
+  return buf
+
+
+public lostanza defn show-glyphs (ctx:ref<Context>, glyphs:ref<Tuple<Glyph>>) -> ref<False> :
+  val buf = to-array(glyphs)
+  val numGlyphs = length(glyphs).value
+  w_cairo_show_glyphs(ctx.value, buf, numGlyphs)
+  call-c clib/free(buf)
+  return false
+
+public lostanza defn glyph-path (ctx:ref<Context>, glyphs:ref<Tuple<Glyph>>) -> ref<False> :
+  val buf = to-array(glyphs)
+  val numGlyphs = length(glyphs).value
+  w_cairo_glyph_path(ctx.value, buf, numGlyphs)
+  call-c clib/free(buf)
+  return false
+
+public lostanza defn glyph-extents (ctx:ref<Context>, glyphs:ref<Tuple<Glyph>>) -> ref<TextExtents> :
+  val ret = TextExtents()
+  val buf = to-array(glyphs)
+  val numGlyphs = length(glyphs).value
+  w_cairo_glyph_extents(ctx.value, buf, numGlyphs, addr!(ret.x_bearing))
+  call-c clib/free(buf)
+  return ret
+
+
+defn to-bitmask (flags:Tuple<cairo_text_cluster_flags_t>) -> Int :
+  var ret = 0
+  for f in flags do:
+    ret = ret | to-int(f)
+  ret
+
+public lostanza defn show-text-glyphs (ctx:ref<Context>, text:ref<String>, glyphs:ref<Tuple<Glyph>>, clusters:ref<Tuple<TextCluster>>, flags:ref<Tuple<cairo_text_cluster_flags_t>>) -> ref<False> :
+  val gBuf = to-array(glyphs)
+  val tBuf = to-array(clusters)
+
+  w_cairo_show_text_glyphs(
+    ctx.value, addr!(text.chars), length(text).value,
+    gBuf, length(glyphs).value,
+    tBuf, length(clusters).value,
+    to-bitmask(flags).value
+  )
+
+  call-c clib/free(gBuf)
+  call-c clib/free(tBuf)
+  return false
+
+
+lostanza deftype FontFaceFinalizer <: Finalizer :
+  value:ptr<?>
+
+lostanza defmethod run (self:ref<FontFaceFinalizer>) -> ref<False> :
+  w_cairo_font_face_destroy(self.value)
+  return false
+
+public lostanza deftype FontFace <: Unique:
+  value:ptr<?>
+
+public lostanza defn FontFace (p:ptr<?>) -> ref<FontFace> :
+  val ret = new FontFace{p}
+  add-finalizer(new FontFaceFinalizer{p}, ret)
+  return ret
+
+public lostanza defn get-type (f:ref<FontFace>) -> ref<cairo_font_type_t> :
+  val ret = w_cairo_font_face_get_type(f.value)
+  return cairo_font_type_t(ret)
+
+public lostanza defn get-ref-count (f:ref<FontFace>) -> ref<Int> :
+  val ret = w_cairo_font_face_get_reference_count(f.value)
+  return new Int{ret}
+
+public lostanza defn get-status (f:ref<FontFace>) -> ref<cairo_status_t> :
+  val ret = w_cairo_font_face_status(f.value)
+  return cairo_status_t(ret)
+
+public lostanza defn font-face-from-ref (p:ptr<?>) -> ref<FontFace> :
+  w_cairo_font_face_reference(p)
+  return FontFace(p)
+
+; FontFace user data
+
+lostanza deftype ScaledFontFinalizer <: Finalizer :
+  value:ptr<?>
+
+lostanza defmethod run (self:ref<ScaledFontFinalizer>) -> ref<False> :
+  w_cairo_scaled_font_destroy(self.value)
+  return false
+
+public lostanza deftype ScaledFont <: Unique:
+  value:ptr<?>
+
+public lostanza defn ScaledFont (p:ptr<?>) -> ref<ScaledFont> :
+  val ret = new ScaledFont{p}
+  add-finalizer(new ScaledFontFinalizer{p}, ret)
+  return ret
+
+public lostanza defn ScaledFont (face:ref<FontFace>, fmat:ref<Matrix2D>, ctm:ref<Matrix2D>, options:ref<FontOptions>) -> ref<ScaledFont> :
+  val ret = w_cairo_scaled_font_create(face.value, addr!(fmat.xx), addr!(ctm.xx), options.value)
+  return ScaledFont(ret)
+
+public lostanza defn scaled-font-from-ref (p:ptr<?>) -> ref<ScaledFont> :
+  w_cairo_scaled_font_reference(p)
+  return ScaledFont(p)
+
+public lostanza defn get-ref-count (f:ref<ScaledFont>) -> ref<Int> :
+  val ret = w_cairo_scaled_font_get_reference_count(f.value)
+  return new Int{ret}
+
+public lostanza defn get-status (f:ref<ScaledFont>) -> ref<cairo_status_t> :
+  val ret = w_cairo_scaled_font_status(f.value)
+  return cairo_status_t(ret)
+
+public lostanza defn get-type (f:ref<ScaledFont>) -> ref<cairo_font_type_t> :
+  val ret = w_cairo_scaled_font_get_type(f.value)
+  return cairo_font_type_t(ret)
+
+public lostanza defn font-extents (f:ref<ScaledFont>) -> ref<FontExtents> :
+  val ret = FontExtents()
+  w_cairo_scaled_font_extents(f.value, addr!(ret.ascent))
+  return ret
+
+public lostanza defn text-extents (f:ref<ScaledFont>, utf8:ref<String>) -> ref<TextExtents> :
+  val ret = TextExtents()
+  w_cairo_scaled_font_text_extents(f.value, addr!(utf8.chars), addr!(ret.x_bearing))
+  return ret
+
+public lostanza defn glyph-extents (f:ref<ScaledFont>, glyphs:ref<Tuple<Glyph>>) -> ref<TextExtents> :
+  val ret = TextExtents()
+  val buf = to-array(glyphs)
+  val numGlyphs = length(glyphs).value
+  w_cairo_scaled_font_glyph_extents(f.value, buf, numGlyphs, addr!(ret.x_bearing))
+  call-c clib/free(buf)
+  return ret
+
+; extern cairo_scaled_font_text_to_glyphs : (ptr<?>,double,double,ptr<byte>,int,ptr<ptr<?>>,ptr<int>,ptr<ptr<?>>,ptr<int>,ptr<?>) -> int
+
+public lostanza defn get-font-face (f:ref<ScaledFont>) -> ref<FontFace> :
+  val ret = w_cairo_scaled_font_get_font_face(f.value)
+  return font-face-from-ref(ret)
+
+public lostanza defn get-font-matrix (f:ref<ScaledFont>) -> ref<Matrix2D> :
+  val ret = Matrix2D()
+  w_cairo_scaled_font_get_font_matrix(f.value, addr!(ret.xx))
+  return ret
+
+public lostanza defn get-ctm (f:ref<ScaledFont>) -> ref<Matrix2D> :
+  val ret = Matrix2D()
+  w_cairo_scaled_font_get_ctm(f.value, addr!(ret.xx))
+  return ret
+
+public lostanza defn get-scale-matrix (f:ref<ScaledFont>) -> ref<Matrix2D> :
+  val ret = Matrix2D()
+  w_cairo_scaled_font_get_scale_matrix(f.value, addr!(ret.xx))
+  return ret
+
+public lostanza defn get-font-options (f:ref<ScaledFont>) -> ref<FontOptions> :
+  val ret = FontOptions()
+  w_cairo_scaled_font_get_font_options(f.value, ret.value)
+  return ret
+
+
+public lostanza defn set-scaled-font (ctx:ref<Context>, f:ref<ScaledFont>) -> ref<False> :
+  return w_cairo_set_scaled_font(ctx.value, f.value)
+
+public lostanza defn get-scaled-font (ctx:ref<Context>) -> ref<ScaledFont> :
+  val ret = w_cairo_get_scaled_font(ctx.value)
+  return scaled-font-from-ref(ret)
+
+; extern cairo_scaled_font_get_user_data : (ptr<?>,ptr<?>) -> ptr<?>
+; extern cairo_scaled_font_set_user_data : (ptr<?>,ptr<?>,ptr<?>,int) -> int
+
+public lostanza defn set-font-face (ctx:ref<Context>, f:ref<FontFace>) -> ref<False> :
+  return w_cairo_set_font_face(ctx.value, f.value)
+
+public lostanza defn get-font-face (ctx:ref<Context>) -> ref<FontFace> :
+  val ret = w_cairo_get_font_face(ctx.value)
+  return font-face-from-ref(ret)
+
+public lostanza defn create-toy-font-face (family:ref<String>, slant:ref<cairo_font_slant_t>, weight:ref<cairo_font_weight_t>) -> ref<FontFace> :
+  val ret = w_cairo_toy_font_face_create(addr!(family.chars), to-int(slant).value, to-int(weight).value)
+  return FontFace(ret)
+
+public lostanza defn get-family (f:ref<FontFace>) -> ref<String> :
+  val ret = w_cairo_toy_font_face_get_family(f.value)
+  return String(ret)
+
+public lostanza defn get-slant (f:ref<FontFace>) -> ref<cairo_font_slant_t> :
+  val ret = w_cairo_toy_font_face_get_slant(f.value)
+  return cairo_font_slant_t(ret)
+
+public lostanza defn get-weight (f:ref<FontFace>) -> ref<cairo_font_weight_t> :
+  val ret = w_cairo_toy_font_face_get_weight(f.value)
+  return cairo_font_weight_t(ret)
+
+public lostanza defn create-user-font-face () -> ref<FontFace> :
+  val ret = w_cairo_user_font_face_create()
+  return FontFace(ret)
+
+; extern cairo_user_font_face_create : () -> ptr<?>
+; extern cairo_user_scaled_font_init_func_t : (ptr<?>,ptr<?>,ptr<?>) -> int
+; extern cairo_user_scaled_font_render_glyph_func_t : (ptr<?>,long,ptr<?>,ptr<?>) -> int
+; extern cairo_user_scaled_font_text_to_glyphs_func_t : (ptr<?>,ptr<byte>,int,ptr<ptr<?>>,ptr<int>,ptr<ptr<?>>,ptr<int>,ptr<?>) -> int
+; extern cairo_user_scaled_font_unicode_to_glyph_func_t : (ptr<?>,long,ptr<long>) -> int
+; extern cairo_user_font_face_set_init_func : (ptr<?>,int) -> int  ;  void
+; extern cairo_user_font_face_set_render_glyph_func : (ptr<?>,int) -> int  ;  void
+; extern cairo_user_font_face_set_text_to_glyphs_func : (ptr<?>,int) -> int  ;  void
+; extern cairo_user_font_face_set_unicode_to_glyph_func : (ptr<?>,int) -> int  ;  void
+; extern cairo_user_font_face_get_init_func : (ptr<?>) -> int
+; extern cairo_user_font_face_get_render_glyph_func : (ptr<?>) -> int
+; extern cairo_user_font_face_get_text_to_glyphs_func : (ptr<?>) -> int
+; extern cairo_user_font_face_get_unicode_to_glyph_func : (ptr<?>) -> int
+
+
+lostanza deftype FontOptionsFinalizer <: Finalizer :
+  value:ptr<?>
+
+lostanza defmethod run (self:ref<FontOptionsFinalizer>) -> ref<False> :
+  w_cairo_font_options_destroy(self.value)
+  return false
+
+public lostanza deftype FontOptions <: Unique & Hashable:
+  value:ptr<?>
+
+public lostanza defn FontOptions (p:ptr<?>) -> ref<FontOptions> :
+  val ret = new FontOptions{p}
+  add-finalizer(new FontOptionsFinalizer{p}, ret)
+  return ret
+
+public lostanza defn FontOptions () -> ref<FontOptions> :
+  val p = w_cairo_font_options_create()
+  return FontOptions(p)
+
+public lostanza defn FontOptions (other:ref<FontOptions>) -> ref<FontOptions> :
+  val p = w_cairo_font_options_copy(other.value)
+  return FontOptions(p)
+
+public lostanza defn get-status (fo:ref<FontOptions>) -> ref<cairo_status_t> :
+  val ret = w_cairo_font_options_status(fo.value)
+  return cairo_status_t(ret)
+
+public lostanza defn merge! (fo:ref<FontOptions>, other:ref<FontOptions>) -> ref<False> :
+  return w_cairo_font_options_merge(fo.value, other.value)
+
+public lostanza defmethod equal? (a:ref<FontOptions>, b:ref<FontOptions>) -> ref<True|False> :
+  val ret = w_cairo_font_options_equal(a.value, b.value)
+  if ret > 0:
+    return true
+  else:
+    return false
+
+public lostanza defmethod hash (a:ref<FontOptions>) -> ref<Int> :
+  val ret:long = w_cairo_font_options_hash(a.value)
+  return to-int( new Long{ret} )
+
+public lostanza defn set-antialias (fo:ref<FontOptions>, antialias:ref<cairo_antialias_t>) -> ref<False> :
+  return w_cairo_font_options_set_antialias(fo.value, to-int(antialias).value)
+
+public lostanza defn get-antialias (fo:ref<FontOptions>) -> ref<cairo_antialias_t> :
+  val ret = w_cairo_font_options_get_antialias(fo.value)
+  return cairo_antialias_t(ret)
+
+public lostanza defn set-subpixel-order (fo:ref<FontOptions>, order:ref<cairo_subpixel_order_t>) -> ref<False> :
+  return w_cairo_font_options_set_subpixel_order(fo.value, to-int(order).value)
+
+public lostanza defn get-subpixel-order (fo:ref<FontOptions>) -> ref<cairo_subpixel_order_t> :
+  val ret = w_cairo_font_options_get_subpixel_order(fo.value)
+  return cairo_subpixel_order_t(ret)
+
+public lostanza defn set-hint-style (fo:ref<FontOptions>, style:ref<cairo_hint_style_t>) -> ref<False> :
+  return w_cairo_font_options_set_hint_style(fo.value, to-int(style).value)
+
+public lostanza defn get-hint-style (fo:ref<FontOptions>) -> ref<cairo_hint_style_t> :
+  val ret = w_cairo_font_options_get_hint_style(fo.value)
+  return cairo_hint_style_t(ret)
+
+public lostanza defn set-hint-metrics (fo:ref<FontOptions>, metrics:ref<cairo_hint_metrics_t>) -> ref<False> :
+  return w_cairo_font_options_set_hint_metrics(fo.value, to-int(metrics).value)
+
+public lostanza defn get-hint-metrics (fo:ref<FontOptions>) -> ref<cairo_hint_metrics_t> :
+  val ret = w_cairo_font_options_get_hint_metrics(fo.value)
+  return cairo_hint_metrics_t(ret)
+
+public lostanza defn set-font-options (ctx:ref<Context>, fo:ref<FontOptions>) -> ref<False> :
+  return w_cairo_set_font_options(ctx.value, fo.value)
+
+public lostanza defn get-font-options (ctx:ref<Context>) -> ref<FontOptions>:
+  val ret = FontOptions()
+  w_cairo_get_font_options(ctx.value, ret.value)
+  return ret
+

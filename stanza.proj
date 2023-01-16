@@ -36,6 +36,7 @@ build-test cairo-tests :
     cairo/tests/Geometry
     cairo/tests/Matrix
     cairo/tests/Colors
+    cairo/tests/Text
   flags: COMPILE-STATIC
   pkg: "test-pkgs"
   o: "cairo-tests"

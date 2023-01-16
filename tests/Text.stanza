@@ -1,0 +1,131 @@
+#use-added-syntax(tests)
+defpackage cairo/tests/Text :
+  import core
+  import cairo/Context
+  import cairo/ImageSurface
+  import cairo/Matrix
+  import cairo/Enums/cairo_status_t
+  import cairo/Enums/cairo_format_t
+  import cairo/Text
+  import cairo/Enums/cairo_antialias_t
+  import cairo/Enums/cairo_subpixel_order_t
+  import cairo/Enums/cairo_hint_style_t
+  import cairo/Enums/cairo_hint_metrics_t
+  import cairo/Enums/cairo_font_slant_t
+  import cairo/Enums/cairo_font_weight_t
+  import cairo/Enums/cairo_font_type_t
+
+
+deftest(text) test-font-options:
+  val f = FontOptions()
+  #EXPECT(get-status(f) == CAIRO_STATUS_SUCCESS)
+
+  val f2 = FontOptions(f)
+  #EXPECT(get-status(f2) == CAIRO_STATUS_SUCCESS)
+
+  #EXPECT(f == f2)
+
+  var h = hash(f)
+  println("Hash: %_" % [h])
+
+  var aa = get-antialias(f)
+  #EXPECT(aa == CAIRO_ANTIALIAS_DEFAULT)
+
+  set-antialias(f, CAIRO_ANTIALIAS_BEST)
+
+  aa = get-antialias(f)
+  #EXPECT(aa == CAIRO_ANTIALIAS_BEST)
+
+  h = hash(f)
+  println("Hash: %_" % [h])
+
+  var spo = get-subpixel-order(f)
+  #EXPECT(spo == CAIRO_SUBPIXEL_ORDER_DEFAULT)
+
+  set-subpixel-order(f, CAIRO_SUBPIXEL_ORDER_RGB)
+
+  spo = get-subpixel-order(f)
+  #EXPECT(spo == CAIRO_SUBPIXEL_ORDER_RGB)
+
+  var style = get-hint-style(f)
+  #EXPECT(style == CAIRO_HINT_STYLE_DEFAULT)
+
+  set-hint-style(f, CAIRO_HINT_STYLE_MEDIUM)
+
+  style = get-hint-style(f)
+  #EXPECT(style == CAIRO_HINT_STYLE_MEDIUM)
+
+  var metrics = get-hint-metrics(f)
+  #EXPECT(metrics == CAIRO_HINT_METRICS_DEFAULT)
+
+  set-hint-metrics(f, CAIRO_HINT_METRICS_ON)
+
+  metrics = get-hint-metrics(f)
+  #EXPECT(metrics == CAIRO_HINT_METRICS_ON)
+
+  #EXPECT(get-status(f) == CAIRO_STATUS_SUCCESS)
+
+deftest(text) test-font-face:
+
+  val ff = create-toy-font-face("arial", CAIRO_FONT_SLANT_ITALIC, CAIRO_FONT_WEIGHT_BOLD)
+  #EXPECT(get-status(ff) == CAIRO_STATUS_SUCCESS)
+
+  val ftype = get-type(ff)
+  #EXPECT(ftype == CAIRO_FONT_TYPE_TOY)
+
+  #EXPECT(get-ref-count(ff) > 0)
+
+  #EXPECT(get-family(ff) == "arial")
+  #EXPECT(get-slant(ff) == CAIRO_FONT_SLANT_ITALIC)
+  #EXPECT(get-weight(ff) == CAIRO_FONT_WEIGHT_BOLD)
+
+deftest(text) test-scaled-font :
+
+  val img = ImageSurface(CAIRO_FORMAT_RGB24, 100, 50)
+  val surface = to-surface(img)
+  val ctx = Context(surface)
+  val stat = get-status(ctx)
+  #EXPECT(stat == CAIRO_STATUS_SUCCESS)
+
+  val fo = get-font-options(ctx)
+  #EXPECT(get-status(fo) == CAIRO_STATUS_SUCCESS)
+
+  val ff = get-font-face(ctx)
+
+  val fmat = Scale(10.0, 20.0)
+  val ctm = Identity()
+  val sf = ScaledFont(ff, fmat, ctm, fo)
+  #EXPECT(get-status(sf) == CAIRO_STATUS_SUCCESS)
+  #EXPECT(get-ref-count(sf) > 0 )
+
+  val fType = get-type(sf)
+  #EXPECT(fType == CAIRO_FONT_TYPE_FT)
+
+  val e = font-extents(sf)
+  #EXPECT(ascent(e) == 19.0)
+  #EXPECT(descent(e) == 5.0)
+
+  val te = text-extents(sf, "What Fresh Hell is This.")
+  #EXPECT(width(te) == 116.0)
+  #EXPECT(height(te) == 15.0)
+
+  val face = get-font-face(sf)
+  #EXPECT(get-type(face) == get-type(ff))
+
+  val obsCtm = get-ctm(sf)
+  #EXPECT(xx(obsCtm) == 1.0)
+  #EXPECT(yy(obsCtm) == 1.0)
+  #EXPECT(xy(obsCtm) == 0.0)
+  #EXPECT(yx(obsCtm) == 0.0)
+
+  val obsfMat = get-font-matrix(sf)
+  #EXPECT(xx(obsfMat) == 10.0)
+  #EXPECT(yy(obsfMat) == 20.0)
+  #EXPECT(xy(obsfMat) == 0.0)
+  #EXPECT(yx(obsfMat) == 0.0)
+
+
+  set-scaled-font(ctx, sf)
+
+  val sf2 = get-scaled-font(ctx)
+  #EXPECT(get-type(sf2) == CAIRO_FONT_TYPE_FT)
