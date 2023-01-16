@@ -11,6 +11,24 @@ public lostanza deftype Matrix2D :
   x0:double
   y0:double
 
+public lostanza defn xx (f:ref<Matrix2D>) -> ref<Double> :
+  return new Double{f.xx}
+
+public lostanza defn yx (f:ref<Matrix2D>) -> ref<Double> :
+  return new Double{f.yx}
+
+public lostanza defn xy (f:ref<Matrix2D>) -> ref<Double> :
+  return new Double{f.xy}
+
+public lostanza defn yy (f:ref<Matrix2D>) -> ref<Double> :
+  return new Double{f.yy}
+
+public lostanza defn x0 (f:ref<Matrix2D>) -> ref<Double> :
+  return new Double{f.x0}
+
+public lostanza defn y0 (f:ref<Matrix2D>) -> ref<Double> :
+  return new Double{f.y0}
+
 public lostanza defn Matrix2D () -> ref<Matrix2D> :
   return new Matrix2D{0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
 
@@ -56,6 +74,11 @@ public lostanza defn times (a:ref<Matrix2D>, b:ref<Matrix2D>) -> ref<Matrix2D> :
   val ret = Matrix2D()
   w_cairo_matrix_multiply(addr!(ret.xx), addr!(a.xx), addr!(b.xx))
   return ret
+
+public defmethod print (o:OutputStream, a:Matrix2D) :
+  val funcs = [xx, xy, yx, yy, x0, y0]
+  val props = map({_(a)}, funcs)
+  print(o, "Matrix2D{%,}" % [props])
 
 ;@ TODO
 ; public lostanza defn transform-distance (self:ref<Matrix2D>, Pt) -> ref<False> :
