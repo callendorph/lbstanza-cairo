@@ -11,5 +11,6 @@ fi
 # Attempt to work around issue with
 # permissions in github actions
 mkdir -p pkgs
+chmod o+rwx pkgs
 
 docker run -t --rm -v $(pwd):/project --entrypoint $MAKE $IMG tests

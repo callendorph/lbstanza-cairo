@@ -9,4 +9,4 @@ jobs:
       - uses: docker-practice/actions-setup-docker@master
         timeout-minutes: 12
       - run: |
-          sudo chmod u+rwx . && ./run_tests.sh
+          ./run_tests.sh
