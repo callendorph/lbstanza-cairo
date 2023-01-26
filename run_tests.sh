@@ -12,5 +12,6 @@ fi
 # permissions in github actions
 mkdir -p pkgs
 chmod o+rwx pkgs
+chmod o+rwx .
 
 docker run -t --rm -v $(pwd):/project --entrypoint $MAKE $IMG tests
