@@ -8,4 +8,8 @@ if ! docker image inspect $IMG --format="EXISTS" ; then
 	docker build -t lbstanza-cairo:latest .
 fi
 
+# Attempt to work around issue with
+# permissions in github actions
+mkdir -p pkgs
+
 docker run -t --rm -v $(pwd):/project --entrypoint $MAKE $IMG tests
