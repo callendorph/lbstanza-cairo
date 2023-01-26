@@ -1,16 +1,14 @@
-# Stanza wrapper for LibCairo 
+# Stanza wrapper for LibCairo
 
-This provides a wrapper for the cross-platform drawing library libcairo. The idea is
-to provide a mechanism to make graphical representations. 
+This provides a wrapper for the cross-platform drawing library libcairo. See https://www.cairographics.org/ for more info.
 
-## Setup 
+## Run the Tests
 
-Install stanza - make sure it is on your path
+Easy way is to use the docker container:
 
-On linux: 
-
-```
-sudo apt install build-essentials libcairo2-dev 
+```bash
+$> ./run_tests.sh
 ```
 
-
+This will build a container `lbstanza-cairo:latest` and then
+run the unit tests in that container.
